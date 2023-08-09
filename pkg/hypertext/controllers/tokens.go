@@ -25,12 +25,12 @@ func NewApiTokenController(db *gorm.DB, auth *services.AuthService, gatekeeper *
 
 func (ctrl *ApiTokenController) Map(router *fiber.App) {
 	router.Get(
-		"/api/auth/tokens",
+		"/api/users/tokens",
 		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:id.tokens"), hyperutils.GenPerms()),
 		ctrl.list,
 	)
 	router.Post(
-		"/api/auth/tokens",
+		"/api/users/tokens",
 		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("create:id.tokens"), hyperutils.GenPerms()),
 		ctrl.create,
 	)

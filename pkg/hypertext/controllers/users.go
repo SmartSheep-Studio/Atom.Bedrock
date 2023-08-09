@@ -165,7 +165,7 @@ func (ctrl *UserController) verify(c *fiber.Ctx) error {
 
 func (ctrl *UserController) update(c *fiber.Ctx) error {
 	var req struct {
-		Username    string `json:"username" validate:"required"`
+		Name        string `json:"name" validate:"required"`
 		Nickname    string `json:"nickname" validate:"required"`
 		Description string `json:"description"`
 	}
@@ -175,7 +175,7 @@ func (ctrl *UserController) update(c *fiber.Ctx) error {
 	}
 
 	user := c.Locals("principal").(models.User)
-	user.Name = strings.ToLower(req.Username)
+	user.Name = strings.ToLower(req.Name)
 	user.Nickname = req.Nickname
 	user.Description = req.Description
 

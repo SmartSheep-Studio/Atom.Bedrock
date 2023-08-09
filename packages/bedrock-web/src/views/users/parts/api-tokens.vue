@@ -15,7 +15,7 @@
                     </template>
                   </n-button>
                 </template>
-                {{ $t("pages.auth.principal.api-tokens.remove") }}
+                {{ $t("pages.users.personal-center.api-tokens.remove") }}
               </n-tooltip>
             </template>
             <template #description>
@@ -32,7 +32,7 @@
           <template #icon>
             <n-icon :component="KeyRound" />
           </template>
-          {{ $t("pages.auth.principal.api-tokens.new") }}
+          {{ $t("pages.users.personal-center.api-tokens.new") }}
         </n-button>
       </div>
     </n-spin>
@@ -46,21 +46,21 @@
     </div>
 
     <n-modal v-model:show="creating">
-      <n-card class="w-dialog" :title="$t('pages.auth.principal.api-tokens.new')" :bordered="false" size="huge">
+      <n-card class="w-dialog" :title="$t('pages.users.personal-center.api-tokens.new')" :bordered="false" size="huge">
         <n-form ref="form" :rules="rules" :model="payload" @submit.prevent="create">
-          <n-form-item :label="$t('pages.auth.principal.api-tokens.form.description')" path="description">
+          <n-form-item :label="$t('pages.users.personal-center.api-tokens.form.description')" path="description">
             <n-input
               type="textarea"
-              :placeholder="$t('pages.auth.principal.api-tokens.form.description.placeholder')"
+              :placeholder="$t('pages.users.personal-center.api-tokens.form.description.placeholder')"
               v-model:value="payload.description"
             />
           </n-form-item>
           <n-form-item
             v-for="(_, index) in payload.scope"
-            :label="$t('pages.auth.principal.api-tokens.form.scope', [index + 1])"
+            :label="$t('pages.users.personal-center.api-tokens.form.scope', [index + 1])"
           >
             <n-auto-complete
-              :placeholder="$t('pages.auth.principal.api-tokens.form.scope.placeholder')"
+              :placeholder="$t('pages.users.personal-center.api-tokens.form.scope.placeholder')"
               v-model:value="payload.scope[index]"
               :options="scopeOptions"
             />
@@ -109,7 +109,7 @@ const form = ref<FormInst | null>(null);
 const rules: FormRules = {
   description: {
     required: true,
-    message: t("pages.auth.principal.api-tokens.form.description.validate"),
+    message: t("pages.users.personal-center.api-tokens.form.description.validate"),
     trigger: ["blur", "input"]
   }
 };
@@ -122,8 +122,8 @@ const scopeOptions = [
   "oauth.create",
   "oauth.update",
   "oauth.delete",
-  "auth.openid",
-  "auth.openid.approve",
+  "users.openid",
+  "users.openid.approve",
   "users.update",
   "users.update.avatar",
   "users.update.banner"
@@ -166,8 +166,8 @@ function create() {
 
       creating.value = false;
       $dialog.success({
-        title: t('pages.auth.principal.api-tokens.feedback.success.create'),
-        content: t('pages.auth.principal.api-tokens.feedback.success.create.desc', [res.data.token]),
+        title: t('pages.users.personal-center.api-tokens.feedback.success.create'),
+        content: t('pages.users.personal-center.api-tokens.feedback.success.create.desc', [res.data.token]),
         positiveText: t('actions.ok')
       });
     } catch (e: any) {
@@ -185,7 +185,7 @@ async function terminate(item: any) {
 
     await Promise.all([fetch(), $principal.fetch()]);
 
-    $message.success(t('pages.auth.principal.api-tokens.feedback.success.remove'));
+    $message.success(t('pages.users.personal-center.api-tokens.feedback.success.remove'));
   } catch (e: any) {
     $message.error(t('common.feedback.unknown-error', [e]));
   } finally {

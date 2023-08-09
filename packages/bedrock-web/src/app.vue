@@ -19,7 +19,7 @@
 
                 <div class="flex gap-3" v-if="!$principal.isSigned">
                   <n-button @click="$router.push({ name: 'auth.sign-in' })">{{ $t("actions.sign-in") }}</n-button>
-                  <n-button type="primary" @click="$router.push({ name: 'auth.sign-up' })">{{
+                  <n-button type="primary" @click="$router.push({ name: 'auth.sign-out' })">{{
                     $t("actions.sign-up")
                   }}</n-button>
                 </div>
@@ -112,7 +112,7 @@ watch($route, (v) => {
 });
 
 const dropdownOptions: DropdownOption[] = [
-  { label: t("nav.auth.principal"), key: "auth.principal", icon: renderIcon(AccountCircleRound) },
+  { label: t("nav.users.personal-center"), key: "users.personal-center", icon: renderIcon(AccountCircleRound) },
   { label: t("actions.sign-out"), key: "auth.sign-out", icon: renderIcon(LogOutRound) },
 ];
 

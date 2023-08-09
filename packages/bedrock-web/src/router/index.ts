@@ -16,7 +16,7 @@ const router = createRouter({
     },
     {
       path: "/auth/sign-up",
-      name: "auth.sign-up",
+      name: "auth.sign-out",
       component: () => import("@/views/auth/sign-up.vue"),
     },
     {
@@ -31,9 +31,9 @@ const router = createRouter({
       component: () => import("@/views/auth/openid/connect.vue"),
     },
     {
-      path: "/auth/principal",
-      name: "auth.principal",
-      component: () => import("@/views/auth/account.vue"),
+      path: "/users/self",
+      name: "users.personal-center",
+      component: () => import("@/views/users/account.vue"),
       meta: { gatekeeper: { must: true } },
     },
 

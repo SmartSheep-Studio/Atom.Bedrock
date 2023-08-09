@@ -1,6 +1,6 @@
 <template>
   <n-form ref="form" :rules="rules" :model="payload" @submit.prevent="update">
-    <n-form-item :label="$t('pages.auth.principal.personal-information.avatar')" path="avatar">
+    <n-form-item :label="$t('pages.users.personal-center.personal-information.avatar')" path="avatar">
       <n-spin :show="submitting">
         <div class="flex items-center">
           <n-avatar
@@ -12,7 +12,7 @@
           />
           <div class="flex text-sm text-gray-400">
             <n-icon size="20" :component="ArrowLeftRound" />
-            {{ $t("pages.auth.principal.personal-information.avatar.hint") }}
+            {{ $t("pages.users.personal-center.personal-information.avatar.hint") }}
           </div>
         </div>
 
@@ -25,7 +25,7 @@
         />
       </n-spin>
     </n-form-item>
-    <n-form-item :label="$t('pages.auth.principal.personal-information.banner')" path="banner">
+    <n-form-item :label="$t('pages.users.personal-center.personal-information.banner')" path="banner">
       <n-spin :show="submitting">
         <n-image
           class="w-full rounded cursor-pointer"
@@ -39,7 +39,7 @@
         />
         <div class="flex text-sm text-gray-400">
           <n-icon size="20" :component="ArrowDropUpRound" />
-          {{ $t("pages.auth.principal.personal-information.banner.hint") }}
+          {{ $t("pages.users.personal-center.personal-information.banner.hint") }}
         </div>
 
         <input
@@ -51,29 +51,29 @@
         />
       </n-spin>
     </n-form-item>
-    <n-form-item :label="$t('pages.auth.principal.personal-information.form.username')" path="name">
+    <n-form-item :label="$t('pages.users.personal-center.personal-information.form.username')" path="name">
       <n-tooltip trigger="hover" placement="top">
         <template #trigger>
           <n-input
             v-model:value="payload.name"
-            :placeholder="$t('pages.auth.principal.personal-information.form.username.placeholder')"
+            :placeholder="$t('pages.users.personal-center.personal-information.form.username.placeholder')"
             disabled
           />
         </template>
-        {{ $t('pages.auth.principal.personal-information.form.username.hint') }}
+        {{ $t('pages.users.personal-center.personal-information.form.username.hint') }}
       </n-tooltip>
     </n-form-item>
-    <n-form-item :label="$t('pages.auth.principal.personal-information.form.nickname')" path="nickname">
+    <n-form-item :label="$t('pages.users.personal-center.personal-information.form.nickname')" path="nickname">
       <n-input
         v-model:value="payload.nickname"
-        :placeholder="$t('pages.auth.principal.personal-information.form.nickname.placeholder')"
+        :placeholder="$t('pages.users.personal-center.personal-information.form.nickname.placeholder')"
       />
     </n-form-item>
-    <n-form-item :label="$t('pages.auth.principal.personal-information.form.description')" path="description">
+    <n-form-item :label="$t('pages.users.personal-center.personal-information.form.description')" path="description">
       <n-input
         type="textarea"
         v-model:value="payload.description"
-        :placeholder="$t('pages.auth.principal.personal-information.form.description.placeholder')"
+        :placeholder="$t('pages.users.personal-center.personal-information.form.description.placeholder')"
       />
     </n-form-item>
     <n-button type="primary" attr-type="submit" :loading="submitting">{{ $t("actions.apply") }}</n-button>
@@ -101,13 +101,13 @@ const rules: FormRules = {
   name: {
     required: true,
     validator: (_, v) => new RegExp(/^\w+$/).test(v),
-    message: t('pages.auth.principal.personal-information.form.username.validate'),
+    message: t('pages.users.personal-center.personal-information.form.username.validate'),
     trigger: ["blur", "input"]
   },
   nickname: {
     required: true,
     validator: (_, v) => v.length >= 4,
-    message: t('pages.auth.principal.personal-information.form.nickname.validate'),
+    message: t('pages.users.personal-center.personal-information.form.nickname.validate'),
     trigger: ["blur", "input"]
   }
 };
@@ -130,7 +130,7 @@ function update() {
 
       await $principal.fetch();
 
-      $message.success(t('pages.auth.principal.personal-information.feedback.success'));
+      $message.success(t('pages.users.personal-center.personal-information.feedback.success'));
     } catch (e: any) {
       $message.error(t('common.feedback.unknown-error', [e]));
     } finally {
@@ -157,13 +157,13 @@ function personalise(mode: "avatar" | "banner") {
           break;
         case "banner":
           payload.set("banner", file);
-          await http.put("/api/users/self/personalize?field=avatar", payload);
+          await http.put("/api/users/self/personalize?field=banner", payload);
           break;
       }
 
       await $principal.fetch();
 
-      $message.success(t('pages.auth.principal.personal-information.feedback.success.personalise', [t(`pages.auth.principal.personal-information.${mode}`)]));
+      $message.success(t('pages.users.personal-center.personal-information.feedback.success.personalise', [t(`pages.users.personal-center.personal-information.${mode}`)]));
     } catch (e: any) {
       $message.error(t('common.feedback.unknown-error', [e]));
     } finally {

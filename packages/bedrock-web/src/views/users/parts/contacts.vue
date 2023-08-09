@@ -12,12 +12,12 @@
         </div>
       </template>
       <n-input
-        :placeholder="$t('pages.auth.principal.contacts.form.name.placeholder')"
+        :placeholder="$t('pages.users.personal-center.contacts.form.name.placeholder')"
         v-model:value="item.description"
       />
       <n-input
         style="margin-left: 8px"
-        :placeholder="$t('pages.auth.principal.contacts.form.content.placeholder')"
+        :placeholder="$t('pages.users.personal-center.contacts.form.content.placeholder')"
         v-model:value="item.content"
       />
       <n-button style="margin-left: 8px" @click="payload.splice(index, 1)">
@@ -32,7 +32,7 @@
         @click="
           payload.push({
             content: '',
-            description: $t('pages.auth.principal.contacts.form.contact', [payload.length]),
+            description: $t('pages.users.personal-center.contacts.form.contact', [payload.length]),
             type: 'email'
           })
         "
@@ -73,7 +73,7 @@ function update() {
 
       await $principal.fetch();
 
-      $message.success(t("pages.auth.principal.contacts.feedback.success"));
+      $message.success(t("pages.users.personal-center.contacts.feedback.success"));
     } catch (e: any) {
       $message.error(t('common.feedback.unknown-error', [e]));
     } finally {

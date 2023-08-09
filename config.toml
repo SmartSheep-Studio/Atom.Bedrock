@@ -1,4 +1,4 @@
-debug = false
+debug = true
 base_url = "http://localhost:9443"
 
 [general]
@@ -14,9 +14,12 @@ mount_key = "WGqNUFNhED"
 cookies_domain = "localhost"
 sessions_alive_duration = "720h"
 jwt_signing_method = "HS512"
-[security.groups]
-administrators = ["*"]
-verified_users = ["users.personalize", "users.oauth.*", "assets.create"]
+[security.groups.administrators]
+"*" = true
+[security.groups.verified_users]
+"personalize" = true
+"users.oauth.*" = true
+"assets.upload" = true
 
 [mailer]
 name = "SmartSheep Alphabot <alpha@mail.smartsheep.studio>"

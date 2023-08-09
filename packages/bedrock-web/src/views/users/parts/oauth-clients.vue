@@ -47,7 +47,7 @@
         <template #icon>
           <n-icon :component="PlusRound" />
         </template>
-        {{ $t("pages.auth.principal.oauth-clients.new") }}
+        {{ $t("pages.users.personal-center.oauth-clients.new") }}
       </n-button>
       <n-pagination
         v-model:page="pagination.page"
@@ -57,44 +57,44 @@
     </div>
 
     <n-modal v-model:show="creating">
-      <n-card class="w-dialog" :title="$t('pages.auth.principal.oauth-clients.new')" :bordered="false" size="huge">
+      <n-card class="w-dialog" :title="$t('pages.users.personal-center.oauth-clients.new')" :bordered="false" size="huge">
         <n-form ref="form" :rules="rules" :model="payload" @submit.prevent="create">
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.slug')" path="slug">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.slug')" path="slug">
             <n-input
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.slug.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.slug.placeholder')"
               v-model:value="payload.slug"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.name')" path="name">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.name')" path="name">
             <n-input
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.name.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.name.placeholder')"
               v-model:value="payload.name"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.secret')" path="secret">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.secret')" path="secret">
             <n-input
               type="password"
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.secret.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.secret.placeholder')"
               v-model:value="payload.secret"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.description')" path="description">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.description')" path="description">
             <n-input
               type="textarea"
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.description.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.description.placeholder')"
               v-model:value="payload.description"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.urls')" path="urls">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.urls')" path="urls">
             <n-dynamic-input
               v-model:value="payload.urls"
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.urls.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.urls.placeholder')"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.callbacks')" path="callbacks">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.callbacks')" path="callbacks">
             <n-dynamic-input
               v-model:value="payload.callbacks"
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.callbacks.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.callbacks.placeholder')"
             />
           </n-form-item>
 
@@ -108,48 +108,48 @@
     <n-modal v-model:show="updating">
       <n-card
         class="w-dialog"
-        :title="$t('pages.auth.principal.oauth-clients.update')"
+        :title="$t('pages.users.personal-center.oauth-clients.update')"
         :bordered="false"
         size="huge"
         @update:show="(v: boolean) => {if(!v) refer(null)}"
       >
         <n-form ref="form" :rules="rules" :model="payload" @submit.prevent="update">
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.slug')" path="slug">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.slug')" path="slug">
             <n-input
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.slug.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.slug.placeholder')"
               v-model:value="payload.slug"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.name')" path="name">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.name')" path="name">
             <n-input
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.name.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.name.placeholder')"
               v-model:value="payload.name"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.secret')" path="secret">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.secret')" path="secret">
             <n-input
               type="password"
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.secret.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.secret.placeholder')"
               v-model:value="payload.secret"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.description')" path="description">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.description')" path="description">
             <n-input
               type="textarea"
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.description.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.description.placeholder')"
               v-model:value="payload.description"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.urls')" path="urls">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.urls')" path="urls">
             <n-dynamic-input
               v-model:value="payload.urls"
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.urls.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.urls.placeholder')"
             />
           </n-form-item>
-          <n-form-item :label="$t('pages.auth.principal.oauth-clients.form.callbacks')" path="callbacks">
+          <n-form-item :label="$t('pages.users.personal-center.oauth-clients.form.callbacks')" path="callbacks">
             <n-dynamic-input
               v-model:value="payload.callbacks"
-              :placeholder="$t('pages.auth.principal.oauth-clients.form.callbacks.placeholder')"
+              :placeholder="$t('pages.users.personal-center.oauth-clients.form.callbacks.placeholder')"
             />
           </n-form-item>
 
@@ -190,24 +190,24 @@ const rules: FormRules = {
   slug: {
     required: true,
     validator: (_, v) => new RegExp(/^[A-Za-z0-9-_]+$/).test(v),
-    message: t("pages.auth.principal.oauth-clients.form.slug.validate"),
+    message: t("pages.users.personal-center.oauth-clients.form.slug.validate"),
     trigger: ["blur", "input"],
   },
   name: {
     required: true,
     validator: (_, v) => v.length >= 4,
-    message: t("pages.auth.principal.oauth-clients.form.name.validate"),
+    message: t("pages.users.personal-center.oauth-clients.form.name.validate"),
     trigger: ["blur", "input"],
   },
   description: {
     required: true,
-    message: t("pages.auth.principal.oauth-clients.form.description.validate"),
+    message: t("pages.users.personal-center.oauth-clients.form.description.validate"),
     trigger: ["blur", "input"],
   },
   secret: {
     required: true,
     validator: (_, v) => v.length >= 6,
-    message: t("pages.auth.principal.oauth-clients.form.secret.validate"),
+    message: t("pages.users.personal-center.oauth-clients.form.secret.validate"),
     trigger: ["blur", "input"],
   },
 };
@@ -252,7 +252,7 @@ function create() {
       await fetch();
 
       creating.value = false;
-      $message.success(t("pages.auth.principal.oauth-clients.feedback.success.create"));
+      $message.success(t("pages.users.personal-center.oauth-clients.feedback.success.create"));
     } catch (e: any) {
       $message.error(t("common.feedback.unknown-error", [e]));
     } finally {
@@ -274,7 +274,7 @@ function update() {
       await fetch();
 
       updating.value = false;
-      $message.success(t("pages.auth.principal.oauth-clients.feedback.success.update"));
+      $message.success(t("pages.users.personal-center.oauth-clients.feedback.success.update"));
     } catch (e: any) {
       $message.error(t("common.feedback.unknown-error", [e]));
     } finally {
@@ -296,7 +296,7 @@ function destroy(item: any) {
 
         await fetch();
 
-        $message.success(t("pages.auth.principal.oauth-clients.feedback.success.destroy"));
+        $message.success(t("pages.users.personal-center.oauth-clients.feedback.success.destroy"));
       } catch (e: any) {
         $message.error(t("common.feedback.unknown-error", [e]));
       } finally {

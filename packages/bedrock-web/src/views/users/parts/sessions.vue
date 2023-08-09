@@ -22,7 +22,7 @@
                     </template>
                   </n-button>
                 </template>
-                {{ $t("pages.auth.principal.sessions.terminate") }}
+                {{ $t("pages.users.personal-center.sessions.terminate") }}
               </n-tooltip>
             </template>
             <template #description>
@@ -111,7 +111,7 @@ async function terminate(item: any) {
 
     await Promise.all([fetch(), $principal.fetch()]);
 
-    $message.success(t('pages.auth.principal.sessions.feedback.success'));
+    $message.success(t('pages.users.personal-center.sessions.feedback.success'));
   } catch (e: any) {
     $message.error(t("common.feedback.unknown-error", [e]));
   } finally {

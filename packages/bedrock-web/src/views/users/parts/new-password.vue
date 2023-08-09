@@ -1,17 +1,17 @@
 <template>
   <n-form ref="form" :rules="rules" :model="payload" @submit.prevent="update">
-    <n-form-item :label="$t('pages.auth.principal.change-password.form.old-password')" path="old">
+    <n-form-item :label="$t('pages.users.personal-center.change-password.form.old-password')" path="old">
       <n-input
         v-model:value="payload.old_password"
         type="password"
-        :placeholder="$t('pages.auth.principal.change-password.form.old-password.placeholder')"
+        :placeholder="$t('pages.users.personal-center.change-password.form.old-password.placeholder')"
       />
     </n-form-item>
-    <n-form-item :label="$t('pages.auth.principal.change-password.form.new-password')" path="new">
+    <n-form-item :label="$t('pages.users.personal-center.change-password.form.new-password')" path="new">
       <n-input
         v-model:value="payload.new_password"
         type="password"
-        :placeholder="$t('pages.auth.principal.change-password.form.new-password.placeholder')"
+        :placeholder="$t('pages.users.personal-center.change-password.form.new-password.placeholder')"
       />
     </n-form-item>
     <n-button type="primary" attr-type="submit" :loading="submitting">Apply</n-button>
@@ -37,13 +37,13 @@ const rules: FormRules = {
   old_password: {
     required: true,
     validator: (_, v) => v.length >= 6,
-    message: t("pages.auth.principal.change-password.form.old-password.validate"),
+    message: t("pages.users.personal-center.change-password.form.old-password.validate"),
     trigger: ["blur", "input"]
   },
   new_password: {
     required: true,
     validator: (_, v) => v.length >= 6,
-    message: t("pages.auth.principal.change-password.form.new-password.validate"),
+    message: t("pages.users.personal-center.change-password.form.new-password.validate"),
     trigger: ["blur", "input"]
   }
 };
@@ -65,7 +65,7 @@ function update() {
 
       await $principal.fetch();
 
-      $message.success(t('pages.auth.principal.change-password.feedback.success'));
+      $message.success(t('pages.users.personal-center.change-password.feedback.success'));
     } catch (e: any) {
       $message.error(t('common.feedback.unknown-error', [e]));
     } finally {

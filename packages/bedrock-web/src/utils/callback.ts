@@ -1,4 +1,4 @@
-export function parseRedirect(query: any, fallback = { name: "auth.principal" }): Promise<any> {
+export function parseRedirect(query: any, fallback = { name: "users.personal-center" }): Promise<any> {
   return new Promise((resolve, reject) => {
     if (query.redirect_uri != null) {
       window.location.href = query.redirect_uri;

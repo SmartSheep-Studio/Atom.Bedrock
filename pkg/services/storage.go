@@ -19,11 +19,11 @@ func NewStorageService(db *gorm.DB) *StorageService {
 	return &StorageService{db: db}
 }
 
-func (v *StorageService) SaveFile(c *fiber.Ctx, file *multipart.FileHeader, mode int) (models.StorageFile, error) {
+func (v *StorageService) SaveFile(c *fiber.Ctx, file *multipart.FileHeader, flag int) (models.StorageFile, error) {
 	f := models.StorageFile{
 		Name:      file.Filename,
 		Size:      file.Size,
-		Type:      mode,
+		Type:      flag,
 		StorageID: uuid.NewString(),
 		UserID:    nil,
 	}
@@ -36,11 +36,11 @@ func (v *StorageService) SaveFile(c *fiber.Ctx, file *multipart.FileHeader, mode
 	}
 }
 
-func (v *StorageService) SaveFile2User(c *fiber.Ctx, file *multipart.FileHeader, user models.User, mode int) (models.StorageFile, error) {
+func (v *StorageService) SaveFile2User(c *fiber.Ctx, file *multipart.FileHeader, user models.User, flag int) (models.StorageFile, error) {
 	f := models.StorageFile{
 		Name:      file.Filename,
 		Size:      file.Size,
-		Type:      mode,
+		Type:      flag,
 		StorageID: uuid.NewString(),
 		UserID:    &user.ID,
 	}

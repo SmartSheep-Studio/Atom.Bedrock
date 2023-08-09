@@ -2,7 +2,9 @@ package models
 
 import (
 	"errors"
+	"github.com/samber/lo"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
@@ -15,12 +17,12 @@ import (
 func RunMigration(db *gorm.DB) {
 	// Creating tables
 	if err := db.AutoMigrate(
-		&Notification{},
-		&UserGroup{},
-		&OauthClient{},
 		&User{},
+		&UserGroup{},
+		&Notification{},
 		&UserContact{},
 		&UserSession{},
+		&OauthClient{},
 		&OTP{},
 		&StorageFile{},
 	); err != nil {
@@ -53,8 +55,9 @@ func RunMigration(db *gorm.DB) {
 		encrypted, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if db.Create([]*User{
 			{
-				Name:     "administrator",
-				Nickname: "Administrator",
+				Name:        "administrator",
+				Nickname:    "Administrator",
+				Description: "Admin user with supreme power.",
 				Contacts: []UserContact{
 					{
 						Name:        "Administrator's Primary Contact",
@@ -68,6 +71,7 @@ func RunMigration(db *gorm.DB) {
 				Groups: []UserGroup{
 					group,
 				},
+				VerifiedAt: lo.ToPtr(time.Now()),
 			},
 		}).Error == nil {
 			log.Info().Msgf("Successfully created default user `administrator` with password `%s`", password)

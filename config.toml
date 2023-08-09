@@ -1,0 +1,37 @@
+debug = false
+base_url = "http://localhost:9443"
+
+[general]
+name = "Atom"
+description = "A duplicate of Project Atom"
+app_secret = "EKGP4chtyJkfVNJkwRVgku1ddZBbYMq9"
+
+[paths]
+user_contents = "dist/uploads"
+
+[security]
+mount_key = "WGqNUFNhED"
+cookies_domain = "localhost"
+sessions_alive_duration = "720h"
+jwt_signing_method = "HS512"
+[security.groups]
+administrators = ["*"]
+verified_users = ["users.personalize", "users.oauth.*", "assets.create"]
+
+[mailer]
+name = "SmartSheep Alphabot <alpha@mail.smartsheep.studio>"
+smtp_host = "smtp.qcloudmail.com"
+smtp_port = 465
+username = "alpha@mail.smartsheep.studio"
+password = "123456789"
+
+[hypertext]
+bind_addr = ":9443"
+[hypertext.advanced]
+prefork = false
+max_body_size = 4194304
+
+[datasource]
+[datasource.master]
+table_prefix = "bedrock_"
+dsn = "host=localhost user=postgres password=password dbname=bedrock port=5432 sslmode=disable timezone=Asia/Shanghai"

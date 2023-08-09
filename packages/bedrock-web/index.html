@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Atom</title>
+  </head>
+  <body>
+    <noscript>
+      <div class="atom-preloader" style="position: absolute; top: 0; left: 0; z-index: 1000; background-color: white">
+        <div style="max-width: 800px">
+          <div>
+            <h1>⚠️ Nucleus Escaped</h1>
+          </div>
+
+          <div>
+            We're sorry the page render failed because we used
+            <del>Controlled Fusion</del>
+            SPA (Single Page Application) framework. So you must enabled JavaScript and use a modern browser support
+            EMACScript5 to visit this page.
+          </div>
+        </div>
+      </div>
+    </noscript>
+
+    <div id="app">
+      <div class="atom-preloader">
+        <div style="max-width: 800px">
+          <div>
+            <div style="margin-bottom: 16px">
+              <div>Initializing</div>
+              <div style="font-size: 14px; color: #898989">Maybe slow to render for the first time</div>
+            </div>
+
+            <div class="atom-preloader-progressbar">
+              <div class="atom-preloader-progress"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap");
+
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      overflow: auto !important;
+    }
+
+    a {
+      color: #3988d7;
+    }
+
+    code,
+    pre,
+    kbd,
+    samp {
+      font-family: "Roboto Mono", monospace !important;
+    }
+
+    .no-underline {
+      text-decoration: none;
+    }
+
+    .dense-container {
+      max-width: 800px !important;
+    }
+
+    .text-mono {
+      font-family: "Roboto Mono", monospace !important;
+    }
+
+    .atom-preloader {
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      place-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .atom-preloader-progressbar {
+      width: 340px;
+      height: 4px;
+      border-radius: 25px;
+      background: #eee;
+    }
+
+    .atom-preloader-progress {
+      width: 10%;
+      height: inherit;
+      border-radius: 25px;
+      transition: width 0.2s linear;
+      animation: 10s ease-in-out 0s atom-preloader-fake-progress forwards;
+      background: #5c6bc0;
+    }
+
+    @keyframes atom-preloader-fake-progress {
+      0% {
+        width: 0;
+      }
+      100% {
+        width: 100%;
+      }
+    }
+  </style>
+</html>

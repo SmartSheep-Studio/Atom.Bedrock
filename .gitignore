@@ -1,0 +1,8 @@
+/dist
+/resources/geolite-city.mmdb
+/resources/plugins/**
+/resources/uploads/**
+
+/latest.log
+
+/**/node_modules/**

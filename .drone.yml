@@ -1,0 +1,20 @@
+kind: pipeline
+type: docker
+name: default
+steps:
+  - name: build image
+    image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      registry: https://code.smartsheep.studio
+      repo: code.smartsheep.studio/atom/bedrock
+      username: CD.Agent
+      password:
+        from_secret: CD.Agent
+      auto_tag: true
+trigger:
+  ref:
+  - refs/heads/master
+  - refs/heads/**
+  - refs/pull/*/head

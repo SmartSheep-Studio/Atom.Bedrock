@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -25,8 +26,12 @@ type StorageFile struct {
 	UserID    *uint  `json:"user_id"`
 }
 
-func (u *StorageFile) AfterDelete(tx *gorm.DB) (err error) {
+func (v *StorageFile) AfterDelete(tx *gorm.DB) (err error) {
 	// Remove file in filesystem
-	os.Remove(filepath.Join(viper.GetString("paths.user_contents"), u.StorageID))
+	os.Remove(filepath.Join(viper.GetString("paths.user_contents"), v.StorageID))
 	return nil
+}
+
+func (v StorageFile) GetURL() string {
+	return fmt.Sprintf("/api/assets/%s", v.StorageID)
 }

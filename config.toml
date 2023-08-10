@@ -38,3 +38,12 @@ max_body_size = 4194304
 [datasource.master]
 table_prefix = "bedrock_"
 dsn = "host=localhost user=postgres password=password dbname=bedrock port=5432 sslmode=disable timezone=Asia/Shanghai"
+
+[helicopter]
+[[helicopter.subapps]]
+name = "matrix"
+display = "Matrix"
+workdir = "./dist/subapps/matrix"
+executable = "./Server.exe"
+arguments = []
+order = 10

@@ -7,6 +7,7 @@ import (
 func Module() fx.Option {
 	return fx.Module("services",
 		fx.Provide(NewMetricsService),
+		fx.Provide(NewHeLiCoPtErService),
 		fx.Provide(NewUserService),
 		fx.Provide(NewAuthService),
 		fx.Provide(NewStorageService),

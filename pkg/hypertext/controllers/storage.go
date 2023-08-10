@@ -3,6 +3,7 @@ package controllers
 import (
 	"code.smartsheep.studio/atom/bedrock/pkg/services"
 	"path/filepath"
+	"strconv"
 
 	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/hyperutils"
 	"github.com/gofiber/fiber/v2"
@@ -26,7 +27,7 @@ func NewStorageController(db *gorm.DB, warehouse *services.StorageService, gatek
 
 func (ctrl *StorageController) Map(router *fiber.App) {
 	router.Get(
-		"/api/assets",
+		"/api/assets/:id",
 		ctrl.read,
 	)
 	router.Post(
@@ -37,18 +38,17 @@ func (ctrl *StorageController) Map(router *fiber.App) {
 }
 
 func (ctrl *StorageController) read(c *fiber.Ctx) error {
-	id := c.Query("id")
-	storage := c.Query("storage")
+	probe := c.Params("id")
 
-	if len(id) == 0 {
-		id = "0"
-	}
-	if len(storage) == 0 {
-		storage = "?"
+	var tx *gorm.DB
+	if _, err := strconv.Atoi(probe); err == nil {
+		tx = ctrl.db.Where("id = ?", probe)
+	} else {
+		tx = ctrl.db.Where("storage_id = ?", probe)
 	}
 
 	var f models.StorageFile
-	if err := ctrl.db.Where("id = ? OR storage_id = ?", id, storage).First(&f).Error; err != nil {
+	if err := tx.First(&f).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	} else {
 		return c.Download(filepath.Join(viper.GetString("paths.user_contents"), f.StorageID), f.Name)

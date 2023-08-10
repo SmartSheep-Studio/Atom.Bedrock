@@ -27,7 +27,7 @@ import (
 
 var server *fiber.App
 
-func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.MetricsService) *fiber.App {
+func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.MetricsService, cop *services.HeLiCoPtErService) *fiber.App {
 	// Create app
 	server = fiber.New(fiber.Config{
 		Prefork:               viper.GetBool("hypertext.advanced.prefork"),
@@ -83,6 +83,10 @@ func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.Metr
 				}
 			}()
 
+			if err := cop.StartAll(); err != nil {
+				log.Err(err).Msg("HeLiCoPtEr start failed...")
+			}
+
 			metrics.IsReady = true
 			url := conf.GetString("base_url")
 			log.Info().Msgf("Hypertext transfer protocol server is ready on %s", url)
@@ -101,6 +105,10 @@ func MapControllers(controllers []controllers.HypertextController, server *fiber
 
 	// Handle APIs not found
 	server.Get("/api/*", func(ctx *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusNotFound, "not found")
+	})
+	// Handle CGIs not found
+	server.Get("/cgi/*", func(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "not found")
 	})
 

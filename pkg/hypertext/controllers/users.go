@@ -287,7 +287,7 @@ func (ctrl *UserController) personalize(c *fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		} else {
 			// Update url
-			u.AvatarUrl = fmt.Sprintf("/api/assets?storage=%s", f.StorageID)
+			u.AvatarUrl = f.GetURL()
 			ctrl.db.Save(&u)
 
 			return c.SendStatus(fiber.StatusOK)
@@ -307,7 +307,7 @@ func (ctrl *UserController) personalize(c *fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		} else {
 			// Update url
-			u.BannerUrl = fmt.Sprintf("/api/assets?storage=%s", f.StorageID)
+			u.BannerUrl = f.GetURL()
 			ctrl.db.Save(&u)
 
 			return c.SendStatus(fiber.StatusOK)

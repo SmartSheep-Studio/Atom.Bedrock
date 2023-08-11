@@ -1,7 +1,7 @@
 package services
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
+	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	"fmt"
 	"github.com/IGLOU-EU/go-wildcard"
 	"github.com/golang-jwt/jwt/v5"
@@ -31,7 +31,7 @@ func (err *AuthRequire2FAError) Error() string {
 	return err.message
 }
 
-func (v *AuthService) AuthUser(id string, password string) (models.User, error) {
+func (v *AuthService) AuthUser(id string, password string) (models2.User, error) {
 	user, err := v.users.LookupUser(id)
 	if err != nil {
 		return user, fmt.Errorf("couldn't find user with %s", id)
@@ -44,7 +44,7 @@ func (v *AuthService) AuthUser(id string, password string) (models.User, error) 
 	}
 }
 
-func (v *AuthService) NewSession(user models.User, item *models.UserSession) error {
+func (v *AuthService) NewSession(user models2.User, item *models2.UserSession) error {
 	item.UserID = user.ID
 
 	// TODO Add security check when log in at a new place(ip address)
@@ -52,17 +52,17 @@ func (v *AuthService) NewSession(user models.User, item *models.UserSession) err
 	return v.db.Save(&item).Error
 }
 
-func (v *AuthService) NewJwt(session models.UserSession, flag string, audience ...string) (models.UserClaims, string, error) {
+func (v *AuthService) NewJwt(session models2.UserSession, flag string, audience ...string) (models2.UserClaims, string, error) {
 	var expires *jwt.NumericDate
-	if flag == models.UserClaimsTypeRefresh && session.ExpiredAt != nil {
+	if flag == models2.UserClaimsTypeRefresh && session.ExpiredAt != nil {
 		exp := session.ExpiredAt.Add(24 * 7 * time.Hour)
 		expires = jwt.NewNumericDate(exp)
-	} else if flag == models.UserClaimsTypeAccess && session.ExpiredAt != nil {
+	} else if flag == models2.UserClaimsTypeAccess && session.ExpiredAt != nil {
 		expires = jwt.NewNumericDate(*session.ExpiredAt)
 	}
 
 	audience = append(audience, viper.GetString("name"))
-	claims := models.UserClaims{
+	claims := models2.UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    viper.GetString("base_url"),
 			Subject:   strconv.Itoa(int(session.UserID)),
@@ -85,8 +85,8 @@ func (v *AuthService) NewJwt(session models.UserSession, flag string, audience .
 	return claims, token, err
 }
 
-func (v *AuthService) ReadJwt(token string) (*models.UserClaims, error) {
-	res, err := jwt.ParseWithClaims(token, &models.UserClaims{}, func(t *jwt.Token) (interface{}, error) {
+func (v *AuthService) ReadJwt(token string) (*models2.UserClaims, error) {
+	res, err := jwt.ParseWithClaims(token, &models2.UserClaims{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
@@ -94,18 +94,18 @@ func (v *AuthService) ReadJwt(token string) (*models.UserClaims, error) {
 		return []byte(viper.GetString("security.secret")), nil
 	})
 
-	return res.Claims.(*models.UserClaims), err
+	return res.Claims.(*models2.UserClaims), err
 }
 
-func (v *AuthService) ReadClaims(claims models.UserClaims) (models.UserSession, models.User, error) {
-	var session models.UserSession
+func (v *AuthService) ReadClaims(claims models2.UserClaims) (models2.UserSession, models2.User, error) {
+	var session models2.UserSession
 	if err := v.db.Where("id = ?", claims.SessionID).First(&session).Error; err != nil {
-		return session, models.User{}, fmt.Errorf("could not found session: #%d, because %s", claims.SessionID, err.Error())
+		return session, models2.User{}, fmt.Errorf("could not found session: #%d, because %s", claims.SessionID, err.Error())
 	} else if session.ExpiredAt != nil && session.ExpiredAt.Unix() < time.Now().Unix() {
-		return session, models.User{}, fmt.Errorf("invalid session")
+		return session, models2.User{}, fmt.Errorf("invalid session")
 	}
 
-	var user models.User
+	var user models2.User
 	if err := v.db.Where("id = ?", claims.Subject).Preload("Contacts").Preload("Groups").First(&user).Error; err != nil {
 		return session, user, fmt.Errorf("could not found user: #%s, because %s", claims.Subject, err.Error())
 	}
@@ -113,7 +113,7 @@ func (v *AuthService) ReadClaims(claims models.UserClaims) (models.UserSession, 
 	return session, user, nil
 }
 
-func (v *AuthService) HasUserPermissions(user models.User, requires ...string) error {
+func (v *AuthService) HasUserPermissions(user models2.User, requires ...string) error {
 	perms, err := user.GetPermissions()
 	if err != nil {
 		return err
@@ -136,7 +136,7 @@ func (v *AuthService) HasUserPermissions(user models.User, requires ...string) e
 	return nil
 }
 
-func (v *AuthService) HasSessionScope(session models.UserSession, requires ...string) error {
+func (v *AuthService) HasSessionScope(session models2.UserSession, requires ...string) error {
 	for _, require := range requires {
 		passed := false
 		for _, perm := range session.Scope {

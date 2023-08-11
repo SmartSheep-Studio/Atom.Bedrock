@@ -1,6 +1,7 @@
 package services
 
 import (
+	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	"errors"
 	"fmt"
 	"github.com/samber/lo"
@@ -8,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -23,8 +23,8 @@ func NewOTPService(db *gorm.DB, mailer *MailerService) *OTPService {
 	return &OTPService{db, mailer}
 }
 
-func (v *OTPService) LookupOTP(user models.User, code string) (models.OTP, error) {
-	var otp models.OTP
+func (v *OTPService) LookupOTP(user models2.User, code string) (models2.OTP, error) {
+	var otp models2.OTP
 	if err := v.db.Where("code = ? AND user_id = ?", code, user.ID).First(&otp).Error; err != nil {
 		return otp, err
 	} else if otp.ExpiredAt != nil && time.Now().Unix() >= otp.ExpiredAt.Unix() {
@@ -34,14 +34,14 @@ func (v *OTPService) LookupOTP(user models.User, code string) (models.OTP, error
 	}
 }
 
-func (v *OTPService) NewOTP(user models.User, method int, payload models.OTPPayload, expires *time.Duration) (models.OTP, error) {
-	var otp models.OTP
+func (v *OTPService) NewOTP(user models2.User, method int, payload models2.OTPPayload, expires *time.Duration) (models2.OTP, error) {
+	var otp models2.OTP
 	if err := v.db.Where("user_id = ? AND type = ?", user.ID, method).First(&otp).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return otp, err
 		} else {
 			code := strings.ToUpper(uuid.NewString()[:6])
-			otp = models.OTP{
+			otp = models2.OTP{
 				Type:        method,
 				Code:        code,
 				Payload:     datatypes.NewJSONType(payload),
@@ -71,24 +71,24 @@ func (v *OTPService) NewOTP(user models.User, method int, payload models.OTPPayl
 	}
 }
 
-func (v *OTPService) ApplyOTP(otp models.OTP) error {
-	var user models.User
+func (v *OTPService) ApplyOTP(otp models2.OTP) error {
+	var user models2.User
 	if err := v.db.Where("id = ?", otp.UserID).Preload("Groups").First(&user).Error; err != nil {
 		return err
 	}
 
 	switch otp.Type {
-	case models.OneTimeVerifyContactCode:
+	case models2.OneTimeVerifyContactCode:
 		id, _ := strconv.Atoi(otp.Payload.Data().Target)
-		var contact models.UserContact
+		var contact models2.UserContact
 		if err := v.db.Where("id = ? AND user_id = ?", id, otp.UserID).First(&contact).Error; err != nil {
 			return err
-		} else if contact.Type != models.UserContactTypeEmail {
+		} else if contact.Type != models2.UserContactTypeEmail {
 			return fmt.Errorf("couldn't send mail to verify contact type isn't email")
 		}
 		if user.VerifiedAt == nil || len(user.Groups) == 0 {
 			if len(user.Groups) == 0 {
-				var group models.UserGroup
+				var group models2.UserGroup
 				if err := v.db.Where("slug = ?", "verified_users").First(&group).Error; err != nil {
 					return err
 				}
@@ -108,19 +108,19 @@ func (v *OTPService) ApplyOTP(otp models.OTP) error {
 	}
 }
 
-func (v *OTPService) SendMail(otp models.OTP) error {
-	var user models.User
+func (v *OTPService) SendMail(otp models2.OTP) error {
+	var user models2.User
 	if err := v.db.Where("id = ?", otp.UserID).First(&user).Error; err != nil {
 		return err
 	}
 
 	switch otp.Type {
-	case models.OneTimeVerifyContactCode:
+	case models2.OneTimeVerifyContactCode:
 		id, _ := strconv.Atoi(otp.Payload.Data().Target)
-		var contact models.UserContact
+		var contact models2.UserContact
 		if err := v.db.Where("id = ? AND user_id = ?", id, otp.UserID).First(&contact).Error; err != nil {
 			return err
-		} else if contact.Type != models.UserContactTypeEmail {
+		} else if contact.Type != models2.UserContactTypeEmail {
 			return fmt.Errorf("couldn't send mail to verify contact type isn't email")
 		}
 		return v.mailer.SendMail(contact.Content, "[Atom ID] Verify your email", fmt.Sprintf(`Hello, %s!
@@ -135,14 +135,14 @@ Request details:
 One Time Password ID: #%d
 Requesting User ID: #%d
 Requester IP: %s`, user.Nickname, otp.Code, otp.ExpiredAt.UTC(), otp.ID, user.ID, otp.Payload.Data().IpAddress))
-	case models.OneTimeDangerousPassCode:
-		var contacts []models.UserContact
-		var contact models.UserContact
+	case models2.OneTimeDangerousPassCode:
+		var contacts []models2.UserContact
+		var contact models2.UserContact
 		if err := v.db.Where("user_id = ?", otp.UserID).Find(&contacts).Error; err != nil {
 			return err
 		} else {
 			for _, item := range contacts {
-				if item.Type == models.UserContactTypeEmail {
+				if item.Type == models2.UserContactTypeEmail {
 					contact = item
 					break
 				}

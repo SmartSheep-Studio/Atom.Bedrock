@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
-	"code.smartsheep.studio/atom/bedrock/pkg/services"
+	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
+	services2 "code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strings"
@@ -11,8 +11,8 @@ import (
 type AuthHandler func(force bool, scope []string, perms []string) fiber.Handler
 
 type AuthMiddleware struct {
-	auth  *services.AuthService
-	users *services.UserService
+	auth  *services2.AuthService
+	users *services2.UserService
 
 	Fn AuthHandler
 }
@@ -22,7 +22,7 @@ type AuthConfig struct {
 	LookupToken string
 }
 
-func NewAuth(auth *services.AuthService, users *services.UserService) *AuthMiddleware {
+func NewAuth(auth *services2.AuthService, users *services2.UserService) *AuthMiddleware {
 	cfg := AuthConfig{
 		Next:        nil,
 		LookupToken: "header: Authorization, query: token, cookie: authorization",
@@ -40,9 +40,9 @@ func NewAuth(auth *services.AuthService, users *services.UserService) *AuthMiddl
 				return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 			} else {
 				if err == nil {
-					if err := auth.HasSessionScope(c.Locals("principal-session").(models.UserSession), scope...); err != nil {
+					if err := auth.HasSessionScope(c.Locals("principal-session").(models2.UserSession), scope...); err != nil {
 						return fiber.NewError(fiber.StatusForbidden, err.Error())
-					} else if err := auth.HasUserPermissions(c.Locals("principal").(models.User), perms...); err != nil {
+					} else if err := auth.HasUserPermissions(c.Locals("principal").(models2.User), perms...); err != nil {
 						return fiber.NewError(fiber.StatusForbidden, err.Error())
 					}
 				}

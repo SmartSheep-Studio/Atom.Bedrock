@@ -1,15 +1,15 @@
 package controllers
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/services"
+	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
+	hyperutils2 "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"path/filepath"
 	"strconv"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/hyperutils"
 	"github.com/gofiber/fiber/v2"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/middlewares"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -32,7 +32,7 @@ func (ctrl *StorageController) Map(router *fiber.App) {
 	)
 	router.Post(
 		"/api/assets",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("create:assets"), hyperutils.GenPerms("assets.upload")),
+		ctrl.gatekeeper.Fn(true, hyperutils2.GenScope("create:assets"), hyperutils2.GenPerms("assets.upload")),
 		ctrl.upload,
 	)
 }
@@ -47,23 +47,23 @@ func (ctrl *StorageController) read(c *fiber.Ctx) error {
 		tx = ctrl.db.Where("storage_id = ?", probe)
 	}
 
-	var f models.StorageFile
+	var f models2.StorageFile
 	if err := tx.First(&f).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	} else {
 		return c.Download(filepath.Join(viper.GetString("paths.user_contents"), f.StorageID), f.Name)
 	}
 }
 
 func (ctrl *StorageController) upload(c *fiber.Ctx) error {
-	user := c.Locals("principal").(models.User)
+	user := c.Locals("principal").(models2.User)
 
 	file, err := c.FormFile("file")
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	if f, err := ctrl.warehouse.SaveFile2User(c, file, user, models.StorageFileCustomType); err != nil {
+	if f, err := ctrl.warehouse.SaveFile2User(c, file, user, models2.StorageFileCustomType); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	} else {
 		return c.JSON(f)

@@ -2,9 +2,9 @@ package hypertext
 
 import (
 	view "code.smartsheep.studio/atom/bedrock/packages/bedrock-web"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/controllers"
+	services2 "code.smartsheep.studio/atom/bedrock/pkg/server/services"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/controllers"
-	"code.smartsheep.studio/atom/bedrock/pkg/services"
 	"context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -27,7 +27,7 @@ import (
 
 var server *fiber.App
 
-func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.MetricsService, cop *services.HeLiCoPtErService) *fiber.App {
+func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services2.MetricsService, cop *services2.HeLiCoPtErService) *fiber.App {
 	// Create app
 	server = fiber.New(fiber.Config{
 		Prefork:               viper.GetBool("hypertext.advanced.prefork"),
@@ -83,8 +83,12 @@ func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.Metr
 				}
 			}()
 
-			if err := cop.StartAll(); err != nil {
-				log.Err(err).Msg("HeLiCoPtEr start failed...")
+			if conf.GetBool("helicopter.enabled") {
+				if err := cop.StartAll(); err != nil {
+					log.Err(err).Msg("HeLiCoPtEr start failed...")
+				}
+			} else {
+				log.Info().Msg("HeLiCoPtEr was disabled.")
 			}
 
 			metrics.IsReady = true
@@ -104,11 +108,19 @@ func MapControllers(controllers []controllers.HypertextController, server *fiber
 	}
 
 	// Handle APIs not found
-	server.Get("/api/*", func(ctx *fiber.Ctx) error {
+	server.Get("/api/*", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "not found")
 	})
+	// Security check for CGIs
+	server.Use("/cgi/*", func(c *fiber.Ctx) error {
+		if !viper.GetBool("security.allow_remote_access_cgi") && c.IP() != "127.0.0.1" {
+			return fiber.NewError(fiber.StatusForbidden, "you was not allow to access CGIs")
+		} else {
+			return c.Next()
+		}
+	})
 	// Handle CGIs not found
-	server.Get("/cgi/*", func(ctx *fiber.Ctx) error {
+	server.Get("/cgi/*", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "not found")
 	})
 

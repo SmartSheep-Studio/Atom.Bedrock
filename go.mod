@@ -5,22 +5,24 @@ go 1.20
 require (
 	github.com/IGLOU-EU/go-wildcard v1.0.3
 	github.com/go-playground/validator/v10 v10.14.0
-	github.com/go-resty/resty/v2 v2.7.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/rs/zerolog v1.29.1
+	github.com/samber/lo v1.38.1
+	github.com/urfave/cli v1.22.14
 	go.uber.org/fx v1.19.3
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	gorm.io/datatypes v1.2.0
 )
 
 require (
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
-	github.com/samber/lo v1.38.1 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	go.uber.org/dig v1.17.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 )

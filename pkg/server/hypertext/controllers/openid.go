@@ -1,16 +1,16 @@
 package controllers
 
 import (
+	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
+	hyperutils2 "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"strconv"
 	"strings"
 	"time"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/hyperutils"
 	"github.com/gofiber/fiber/v2"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/middlewares"
-	"code.smartsheep.studio/atom/bedrock/pkg/services"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
@@ -32,12 +32,12 @@ func NewOpenIDController(db *gorm.DB, auth *services.AuthService, gatekeeper *mi
 func (ctrl *OpenIDController) Map(router *fiber.App) {
 	router.Get(
 		"/api/users/openid/connect",
-		ctrl.gatekeeper.Fn(false, hyperutils.GenScope(), hyperutils.GenPerms()),
+		ctrl.gatekeeper.Fn(false, hyperutils2.GenScope(), hyperutils2.GenPerms()),
 		ctrl.connect,
 	)
 	router.Post(
 		"/api/users/openid/connect",
-		ctrl.gatekeeper.Fn(false, hyperutils.GenScope(), hyperutils.GenPerms()),
+		ctrl.gatekeeper.Fn(false, hyperutils2.GenScope(), hyperutils2.GenPerms()),
 		ctrl.approve,
 	)
 	router.Post(
@@ -47,15 +47,15 @@ func (ctrl *OpenIDController) Map(router *fiber.App) {
 }
 
 func (ctrl *OpenIDController) connect(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models.User)
+	u := c.Locals("principal").(models2.User)
 	ok := c.Locals("principal-ok").(bool)
 
 	id := c.Query("client_id")
 	redirect := c.Query("redirect_uri")
 
-	var client models.OauthClient
+	var client models2.OauthClient
 	if err := ctrl.db.Where("slug = ?", id).First(&client).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	} else if !client.IsDeveloping && !slices.Contains(client.Callbacks, strings.Split(redirect, "?")[0]) {
 		return fiber.NewError(fiber.StatusForbidden, "invalid request url")
 	}
@@ -69,7 +69,7 @@ func (ctrl *OpenIDController) connect(c *fiber.Ctx) error {
 		})
 	}
 
-	var session models.UserSession
+	var session models2.UserSession
 	if err := ctrl.db.Where("user_id = ? AND client_id = ? AND ip_address = ?", u.ID, client.ID, c.IP()).First(&session); err == nil {
 		if session.ExpiredAt.Unix() < time.Now().Unix() {
 			return c.JSON(fiber.Map{
@@ -94,13 +94,13 @@ func (ctrl *OpenIDController) connect(c *fiber.Ctx) error {
 }
 
 func (ctrl *OpenIDController) approve(c *fiber.Ctx) error {
-	var u models.User
+	var u models2.User
 	var req struct {
 		ID       string `json:"id" validate:"required"`
 		Password string `json:"password" validate:"required"`
 	}
 
-	err := hyperutils.BodyParser(c, &req)
+	err := hyperutils2.BodyParser(c, &req)
 	if !c.Locals("principal-ok").(bool) && err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
 	} else if !c.Locals("principal-ok").(bool) {
@@ -108,7 +108,7 @@ func (ctrl *OpenIDController) approve(c *fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
 		}
 	} else {
-		u = c.Locals("principal").(models.User)
+		u = c.Locals("principal").(models2.User)
 	}
 
 	id := c.Query("client_id")
@@ -119,16 +119,16 @@ func (ctrl *OpenIDController) approve(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid request params")
 	}
 
-	var client models.OauthClient
+	var client models2.OauthClient
 	if err := ctrl.db.Where("slug = ?", id).First(&client).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	}
 
 	if response == "code" {
 		exp := time.Now().Add(7 * 24 * time.Hour)
 		code := strings.Replace(uuid.New().String(), "-", "", -1)
-		session := models.UserSession{
-			Type:      models.UserSessionTypeOauth,
+		session := models2.UserSession{
+			Type:      models2.UserSessionTypeOauth,
 			Code:      code,
 			Scope:     datatypes.NewJSONSlice(strings.Split(scope, " ")),
 			IpAddress: c.IP(),
@@ -140,7 +140,7 @@ func (ctrl *OpenIDController) approve(c *fiber.Ctx) error {
 		}
 
 		if err := ctrl.db.Save(&session).Error; err != nil {
-			return hyperutils.ErrorParser(err)
+			return hyperutils2.ErrorParser(err)
 		} else {
 			return c.JSON(fiber.Map{
 				"session":      session,
@@ -150,9 +150,9 @@ func (ctrl *OpenIDController) approve(c *fiber.Ctx) error {
 	} else if response == "token" {
 		// OAuth Implicit Mode
 		exp := time.Now().Add(24 * 14 * time.Hour)
-		session := models.UserSession{
+		session := models2.UserSession{
 			ExpiredAt: &exp,
-			Type:      models.UserSessionTypeOauth,
+			Type:      models2.UserSessionTypeOauth,
 			Scope:     datatypes.NewJSONSlice(strings.Split(scope, " ")),
 			IpAddress: c.IP(),
 			Location:  "Unknown",
@@ -161,12 +161,12 @@ func (ctrl *OpenIDController) approve(c *fiber.Ctx) error {
 			UserID:    u.ID,
 		}
 
-		access, accessToken, err := ctrl.auth.NewJwt(session, models.UserClaimsTypeAccess)
+		access, accessToken, err := ctrl.auth.NewJwt(session, models2.UserClaimsTypeAccess)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
-		refresh, refreshToken, err := ctrl.auth.NewJwt(session, models.UserClaimsTypeRefresh)
+		refresh, refreshToken, err := ctrl.auth.NewJwt(session, models2.UserClaimsTypeRefresh)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
@@ -175,7 +175,7 @@ func (ctrl *OpenIDController) approve(c *fiber.Ctx) error {
 		session.Refresh = refresh.ID
 
 		if err := ctrl.db.Save(&session).Error; err != nil {
-			return hyperutils.ErrorParser(err)
+			return hyperutils2.ErrorParser(err)
 		} else {
 			return c.JSON(fiber.Map{
 				"access_token":  accessToken,
@@ -201,16 +201,16 @@ func (ctrl *OpenIDController) exchange(c *fiber.Ctx) error {
 		ClientSecret string `json:"client_secret" form:"client_secret"`
 	}
 
-	if err := hyperutils.BodyParser(c, &req); err != nil {
+	if err := hyperutils2.BodyParser(c, &req); err != nil {
 		return err
 	} else if !slices.Contains([]string{"authorization_code", "refresh_token", "password"}, req.GrantType) {
 		return fiber.NewError(fiber.StatusBadRequest, "unsupported grant type")
 	}
 
 	var err error
-	var user models.User
-	var client models.OauthClient
-	var session models.UserSession
+	var user models2.User
+	var client models2.OauthClient
+	var session models2.UserSession
 	if req.GrantType == "refresh_token" {
 		// OAuth Refresh Mode
 		var pl struct {
@@ -223,19 +223,19 @@ func (ctrl *OpenIDController) exchange(c *fiber.Ctx) error {
 		}
 
 		if claims, err := ctrl.auth.ReadJwt(pl.RefreshToken); err == nil {
-			if claims.Type != models.UserClaimsTypeRefresh {
+			if claims.Type != models2.UserClaimsTypeRefresh {
 				return fiber.NewError(fiber.StatusForbidden, "invalid token: type check failed")
 			}
 
 			id, _ := strconv.Atoi(claims.Subject)
 			if err = ctrl.db.Where("id = ?", id).First(&user).Error; err != nil {
-				return hyperutils.ErrorParser(err)
+				return hyperutils2.ErrorParser(err)
 			}
 			if err = ctrl.db.Where("id = ?", *claims.ClientID).First(&client).Error; err != nil {
-				return hyperutils.ErrorParser(err)
+				return hyperutils2.ErrorParser(err)
 			}
 			if err = ctrl.db.Where("refresh = ?", claims.ID).First(&session).Error; err != nil {
-				return hyperutils.ErrorParser(err)
+				return hyperutils2.ErrorParser(err)
 			}
 		} else {
 			return fiber.NewError(fiber.StatusForbidden, "invalid token: parse failed")
@@ -243,13 +243,13 @@ func (ctrl *OpenIDController) exchange(c *fiber.Ctx) error {
 	} else if req.GrantType == "authorization_code" {
 		// OAuth Authorization Code Mode
 		if err = ctrl.db.Where("code = ?", req.Code).First(&session).Error; err != nil {
-			return hyperutils.ErrorParser(err)
+			return hyperutils2.ErrorParser(err)
 		} else {
 			ctrl.db.Where("id = ?", session.UserID).First(&user)
 		}
 
 		if err = ctrl.db.Where("slug = ?", req.ClientID).First(&client).Error; err != nil {
-			return hyperutils.ErrorParser(err)
+			return hyperutils2.ErrorParser(err)
 		} else if client.Secret != req.ClientSecret {
 			return fiber.NewError(fiber.StatusForbidden, "invalid client secret")
 		}
@@ -260,7 +260,7 @@ func (ctrl *OpenIDController) exchange(c *fiber.Ctx) error {
 		}
 
 		if err = ctrl.db.Where("slug = ?", req.ClientID).First(&client).Error; err != nil {
-			return hyperutils.ErrorParser(err)
+			return hyperutils2.ErrorParser(err)
 		} else if client.Secret != req.ClientSecret {
 			return fiber.NewError(fiber.StatusForbidden, "invalid client secret")
 		}
@@ -271,9 +271,9 @@ func (ctrl *OpenIDController) exchange(c *fiber.Ctx) error {
 		}
 
 		exp := time.Now().Add(7 * 24 * time.Hour)
-		session = models.UserSession{
+		session = models2.UserSession{
 			ExpiredAt: &exp,
-			Type:      models.UserSessionTypeOauth,
+			Type:      models2.UserSessionTypeOauth,
 			Scope:     datatypes.NewJSONSlice(strings.Split(req.Scope, " ")),
 			IpAddress: c.IP(),
 			Location:  "Unknown",
@@ -283,16 +283,16 @@ func (ctrl *OpenIDController) exchange(c *fiber.Ctx) error {
 		}
 
 		if err = ctrl.db.Save(&session).Error; err != nil {
-			return hyperutils.ErrorParser(err)
+			return hyperutils2.ErrorParser(err)
 		}
 	}
 
-	access, accessToken, err := ctrl.auth.NewJwt(session, models.UserClaimsTypeAccess, client.Slug)
+	access, accessToken, err := ctrl.auth.NewJwt(session, models2.UserClaimsTypeAccess, client.Slug)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	refresh, refreshToken, err := ctrl.auth.NewJwt(session, models.UserClaimsTypeRefresh, client.Slug)
+	refresh, refreshToken, err := ctrl.auth.NewJwt(session, models2.UserClaimsTypeRefresh, client.Slug)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -301,7 +301,7 @@ func (ctrl *OpenIDController) exchange(c *fiber.Ctx) error {
 	session.Refresh = refresh.ID
 
 	if err := ctrl.db.Save(&session).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	} else {
 		c.Cookie(&fiber.Cookie{
 			Path:     "/",

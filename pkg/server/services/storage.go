@@ -1,11 +1,11 @@
 package services
 
 import (
+	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	"github.com/gofiber/fiber/v2"
 	"mime/multipart"
 	"path/filepath"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -19,8 +19,8 @@ func NewStorageService(db *gorm.DB) *StorageService {
 	return &StorageService{db: db}
 }
 
-func (v *StorageService) SaveFile(c *fiber.Ctx, file *multipart.FileHeader, flag int) (models.StorageFile, error) {
-	f := models.StorageFile{
+func (v *StorageService) SaveFile(c *fiber.Ctx, file *multipart.FileHeader, flag int) (models2.StorageFile, error) {
+	f := models2.StorageFile{
 		Name:      file.Filename,
 		Size:      file.Size,
 		Type:      flag,
@@ -36,8 +36,8 @@ func (v *StorageService) SaveFile(c *fiber.Ctx, file *multipart.FileHeader, flag
 	}
 }
 
-func (v *StorageService) SaveFile2User(c *fiber.Ctx, file *multipart.FileHeader, user models.User, flag int) (models.StorageFile, error) {
-	f := models.StorageFile{
+func (v *StorageService) SaveFile2User(c *fiber.Ctx, file *multipart.FileHeader, user models2.User, flag int) (models2.StorageFile, error) {
+	f := models2.StorageFile{
 		Name:      file.Filename,
 		Size:      file.Size,
 		Type:      flag,

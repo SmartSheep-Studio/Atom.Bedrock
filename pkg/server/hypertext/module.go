@@ -1,14 +1,14 @@
 package hypertext
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/services"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/controllers"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"time"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/controllers"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/middlewares"
 	"go.uber.org/fx"
 )
 

@@ -17,6 +17,7 @@ func Module() fx.Option {
 	return fx.Module("hypertext.controllers",
 		fx.Provide(
 			AsController(NewWellKnownController),
+			AsController(NewHeLiCoPtErController),
 			AsController(NewStatusController),
 			AsController(NewAuthController),
 			AsController(NewApiTokenController),

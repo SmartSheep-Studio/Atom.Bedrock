@@ -1,7 +1,7 @@
 package datasource
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	"go.uber.org/fx"
 )
 

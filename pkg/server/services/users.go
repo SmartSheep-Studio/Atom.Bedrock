@@ -1,12 +1,12 @@
 package services
 
 import (
+	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
 	"gorm.io/datatypes"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -20,11 +20,11 @@ func NewUserService(db *gorm.DB, conf *viper.Viper) *UserService {
 	return &UserService{db, conf}
 }
 
-func (v *UserService) LookupUser(id string) (models.User, error) {
-	var user models.User
+func (v *UserService) LookupUser(id string) (models2.User, error) {
+	var user models2.User
 	if err := v.db.Where("name = ?", id).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			var contact models.UserContact
+			var contact models2.UserContact
 			if err := v.db.Where("content = ?", id).First(&contact).Error; err != nil {
 				return user, err
 			} else if err := v.db.Where("id = ?", contact.UserID).First(&user).Error; err != nil {
@@ -39,7 +39,7 @@ func (v *UserService) LookupUser(id string) (models.User, error) {
 	}
 }
 
-func (v *UserService) NewUser(item *models.User) error {
+func (v *UserService) NewUser(item *models2.User) error {
 	encrypted, _ := bcrypt.GenerateFromPassword([]byte(item.Password), bcrypt.DefaultCost)
 	item.Password = string(encrypted)
 
@@ -48,22 +48,22 @@ func (v *UserService) NewUser(item *models.User) error {
 	}
 
 	if item.VerifiedAt == nil {
-		item.Notifications = append(item.Notifications, models.Notification{
+		item.Notifications = append(item.Notifications, models2.Notification{
 			Title:       "Account verification is required.",
 			Description: "Don't forgot verify your account!",
 			Content:     "Your account isn't verified now. Before you verify, some features are unavailable. Now go to account center and verify your account now!",
-			Level:       models.NotificationLevelWarning,
-			SenderType:  models.NotificationSenderTypeSystem,
+			Level:       models2.NotificationLevelWarning,
+			SenderType:  models2.NotificationSenderTypeSystem,
 			SenderID:    nil,
 		})
 	}
 
-	item.Notifications = append(item.Notifications, models.Notification{
+	item.Notifications = append(item.Notifications, models2.Notification{
 		Title:       fmt.Sprintf("Welcome to %s", v.conf.GetString("name")),
 		Description: fmt.Sprintf("Thanks for you choosing %s.", v.conf.GetString("name")),
 		Content:     fmt.Sprintf("Thanks for you registration of %s. Now go to explore the whole platform!", v.conf.GetString("name")),
-		Level:       models.NotificationLevelInfo,
-		SenderType:  models.NotificationSenderTypeSystem,
+		Level:       models2.NotificationLevelInfo,
+		SenderType:  models2.NotificationSenderTypeSystem,
 		SenderID:    nil,
 	})
 

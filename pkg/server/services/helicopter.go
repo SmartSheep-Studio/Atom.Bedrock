@@ -1,7 +1,7 @@
 package services
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,23 +11,31 @@ import (
 	"go.uber.org/fx"
 	"os"
 	"os/exec"
+	"strings"
+	"time"
 )
 
 type HeLiCoPtErService struct {
 	log  zerolog.Logger
 	conf *viper.Viper
 
-	apps []*HeLiCoPtErSubApp
+	Apps []*HeLiCoPtErSubApp
+}
+
+type HeLiCoPtErExposedOptions struct {
+	URL string `json:"url"`
 }
 
 type HeLiCoPtErSubApp struct {
 	Manifest *models.SubApp `json:"manifest"`
 
-	Process *os.Process
+	Process        *os.Process               `json:"-"`
+	ExposedOptions *HeLiCoPtErExposedOptions `json:"exposed_options"`
+	LastHealthyAt  *time.Time                `json:"last_healthy_at"`
 }
 
 func NewHeLiCoPtErSubApp(manifest *models.SubApp) *HeLiCoPtErSubApp {
-	return &HeLiCoPtErSubApp{manifest, nil}
+	return &HeLiCoPtErSubApp{manifest, nil, nil, nil}
 }
 
 func NewHeLiCoPtErService(cycle fx.Lifecycle, log zerolog.Logger, conf *viper.Viper) *HeLiCoPtErService {
@@ -35,7 +43,7 @@ func NewHeLiCoPtErService(cycle fx.Lifecycle, log zerolog.Logger, conf *viper.Vi
 
 	// Load config and parse apps
 	manifests, _ := inst.GetSubApps()
-	inst.apps = lo.Map(manifests, func(item *models.SubApp, index int) *HeLiCoPtErSubApp {
+	inst.Apps = lo.Map(manifests, func(item *models.SubApp, index int) *HeLiCoPtErSubApp {
 		return NewHeLiCoPtErSubApp(item)
 	})
 
@@ -62,12 +70,12 @@ func (v *HeLiCoPtErService) GetSubApps() ([]*models.SubApp, error) {
 }
 
 func (v *HeLiCoPtErService) SaveSubApps() error {
-	v.conf.Set("helicopter.subapps", v.apps)
+	v.conf.Set("helicopter.subapps", v.Apps)
 	return v.conf.SafeWriteConfig()
 }
 
 func (v *HeLiCoPtErService) NewSubApp(item models.SubApp) error {
-	v.apps = append(v.apps, NewHeLiCoPtErSubApp(lo.ToPtr(item)))
+	v.Apps = append(v.Apps, NewHeLiCoPtErSubApp(lo.ToPtr(item)))
 	return v.SaveSubApps()
 }
 
@@ -75,10 +83,20 @@ func (v *HeLiCoPtErService) StartOne(app *HeLiCoPtErSubApp) error {
 	// Genshin Impact, Boot!
 	cmd := exec.Command(app.Manifest.Executable, app.Manifest.Arguments...)
 	cmd.Dir = app.Manifest.Workdir
-	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	cmd.Env = append(
+		app.Manifest.Environments,
+		append(
+			os.Environ(),
+			fmt.Sprintf(
+				"BEDROCK_ENDPOINT_URL=http://127.0.0.1:%s",
+				strings.SplitN(v.conf.GetString("hypertext.bind_addr"), ":", 2)[1],
+			),
+		)...,
+	)
 
-	v.apps[lo.IndexOf(v.apps, app)].Process = cmd.Process
+	v.Apps[lo.IndexOf(v.Apps, app)].Process = cmd.Process
 
 	go func() {
 		err := cmd.Run()
@@ -92,7 +110,7 @@ func (v *HeLiCoPtErService) StartOne(app *HeLiCoPtErSubApp) error {
 
 func (v *HeLiCoPtErService) StartAll() error {
 	v.log.Info().Msg("HeLiCoPtEr is starting...")
-	for _, app := range v.apps {
+	for _, app := range v.Apps {
 		v.log.Info().Msgf("HeLiCoPtEr is starting %s...", app.Manifest.Name)
 		if err := v.StartOne(app); err != nil {
 			v.log.Info().Msgf("HeLiCoPtEr failed to start %s... %q", app.Manifest.Name, err)
@@ -119,7 +137,7 @@ func (v *HeLiCoPtErService) StopOne(app *HeLiCoPtErSubApp) error {
 
 func (v *HeLiCoPtErService) StopAll() error {
 	v.log.Info().Msg("HeLiCoPtEr is stopping...")
-	for _, app := range v.apps {
+	for _, app := range v.Apps {
 		v.log.Info().Msgf("HeLiCoPtEr now stopping %s...", app.Manifest.Name)
 		if err := v.StopOne(app); err != nil {
 			v.log.Info().Msgf("HeLiCoPtEr failed to stop %s... %q", app.Manifest.Name, err)

@@ -14,6 +14,7 @@ mount_key = "WGqNUFNhED"
 cookies_domain = "localhost"
 sessions_alive_duration = "720h"
 jwt_signing_method = "HS512"
+allow_remote_access_cgi = false
 [security.groups.administrators]
 "*" = true
 [security.groups.verified_users]
@@ -40,10 +41,12 @@ table_prefix = "bedrock_"
 dsn = "host=localhost user=postgres password=password dbname=bedrock port=5432 sslmode=disable timezone=Asia/Shanghai"
 
 [helicopter]
+enabled = true
 [[helicopter.subapps]]
 name = "matrix"
 display = "Matrix"
 workdir = "./dist/subapps/matrix"
 executable = "./Server.exe"
 arguments = []
+environments = []
 order = 10

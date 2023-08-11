@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/services"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"github.com/gofiber/fiber/v2"
 	"strings"
 
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/middlewares"
 	"github.com/spf13/viper"
 )
 

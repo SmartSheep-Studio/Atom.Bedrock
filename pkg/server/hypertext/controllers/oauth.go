@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/datasource/models"
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/hyperutils"
-	"code.smartsheep.studio/atom/bedrock/pkg/hypertext/middlewares"
-	"code.smartsheep.studio/atom/bedrock/pkg/services"
+	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
+	hyperutils2 "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -23,55 +23,55 @@ func NewOauthController(db *gorm.DB, auth *services.AuthService, gatekeeper *mid
 func (ctrl *OauthController) Map(router *fiber.App) {
 	router.Get(
 		"/api/users/oauth",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:oauth"), hyperutils.GenPerms("users.oauth.read")),
+		ctrl.gatekeeper.Fn(true, hyperutils2.GenScope("read:oauth"), hyperutils2.GenPerms("users.oauth.read")),
 		ctrl.list,
 	)
 	router.Get(
 		"/api/users/oauth/:oauth",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:oauth"), hyperutils.GenPerms("users.oauth.read")),
+		ctrl.gatekeeper.Fn(true, hyperutils2.GenScope("read:oauth"), hyperutils2.GenPerms("users.oauth.read")),
 		ctrl.get,
 	)
 	router.Post(
 		"/api/users/oauth",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("create:oauth"), hyperutils.GenPerms("users.oauth.create")),
+		ctrl.gatekeeper.Fn(true, hyperutils2.GenScope("create:oauth"), hyperutils2.GenPerms("users.oauth.create")),
 		ctrl.create,
 	)
 	router.Put(
 		"/api/users/oauth/:oauth",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("update:oauth"), hyperutils.GenPerms("users.oauth.update")),
+		ctrl.gatekeeper.Fn(true, hyperutils2.GenScope("update:oauth"), hyperutils2.GenPerms("users.oauth.update")),
 		ctrl.update,
 	)
 	router.Delete(
 		"/api/users/oauth/:oauth",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("delete:oauth"), hyperutils.GenPerms("users.oauth.delete")),
+		ctrl.gatekeeper.Fn(true, hyperutils2.GenScope("delete:oauth"), hyperutils2.GenPerms("users.oauth.delete")),
 		ctrl.delete,
 	)
 }
 
 func (ctrl *OauthController) list(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models.User)
+	u := c.Locals("principal").(models2.User)
 
-	var clients []models.OauthClient
+	var clients []models2.OauthClient
 	if err := ctrl.db.Where("user_id = ?", u.ID).Find(&clients).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	} else {
 		return c.JSON(clients)
 	}
 }
 
 func (ctrl *OauthController) get(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models.User)
+	u := c.Locals("principal").(models2.User)
 
-	var client models.OauthClient
+	var client models2.OauthClient
 	if err := ctrl.db.Where("user_id = ? AND slug = ?", u.ID, c.Params("oauth")).First(&client).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	} else {
 		return c.JSON(client)
 	}
 }
 
 func (ctrl *OauthController) create(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models.User)
+	u := c.Locals("principal").(models2.User)
 
 	var req struct {
 		Slug        string   `json:"slug" validate:"required"`
@@ -82,11 +82,11 @@ func (ctrl *OauthController) create(c *fiber.Ctx) error {
 		Callbacks   []string `json:"callbacks"`
 	}
 
-	if err := hyperutils.BodyParser(c, &req); err != nil {
+	if err := hyperutils2.BodyParser(c, &req); err != nil {
 		return err
 	}
 
-	client := models.OauthClient{
+	client := models2.OauthClient{
 		Slug:         req.Slug,
 		Name:         req.Name,
 		Description:  req.Description,
@@ -98,14 +98,14 @@ func (ctrl *OauthController) create(c *fiber.Ctx) error {
 	}
 
 	if err := ctrl.db.Save(&client).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	} else {
 		return c.JSON(client)
 	}
 }
 
 func (ctrl *OauthController) update(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models.User)
+	u := c.Locals("principal").(models2.User)
 
 	var req struct {
 		Slug        string   `json:"slug" validate:"required"`
@@ -116,13 +116,13 @@ func (ctrl *OauthController) update(c *fiber.Ctx) error {
 		Callbacks   []string `json:"callbacks"`
 	}
 
-	if err := hyperutils.BodyParser(c, &req); err != nil {
+	if err := hyperutils2.BodyParser(c, &req); err != nil {
 		return err
 	}
 
-	var client models.OauthClient
+	var client models2.OauthClient
 	if err := ctrl.db.Where("user_id = ? AND slug = ?", u.ID, c.Params("oauth")).First(&client).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	}
 
 	client.Slug = req.Slug
@@ -133,22 +133,22 @@ func (ctrl *OauthController) update(c *fiber.Ctx) error {
 	client.Callbacks = datatypes.NewJSONSlice(req.Callbacks)
 
 	if err := ctrl.db.Save(&client).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	} else {
 		return c.JSON(client)
 	}
 }
 
 func (ctrl *OauthController) delete(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models.User)
+	u := c.Locals("principal").(models2.User)
 
-	var client models.OauthClient
+	var client models2.OauthClient
 	if err := ctrl.db.Where("user_id = ? AND slug = ?", u.ID, c.Params("oauth")).First(&client).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	}
 
 	if err := ctrl.db.Delete(&client).Error; err != nil {
-		return hyperutils.ErrorParser(err)
+		return hyperutils2.ErrorParser(err)
 	} else {
 		return c.SendStatus(fiber.StatusNoContent)
 	}

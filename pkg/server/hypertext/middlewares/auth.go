@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
+	models "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	services2 "code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -40,9 +40,9 @@ func NewAuth(auth *services2.AuthService, users *services2.UserService) *AuthMid
 				return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 			} else {
 				if err == nil {
-					if err := auth.HasSessionScope(c.Locals("principal-session").(models2.UserSession), scope...); err != nil {
+					if err := c.Locals("principal-session").(models.UserSession).HasScope(scope...); err != nil {
 						return fiber.NewError(fiber.StatusForbidden, err.Error())
-					} else if err := auth.HasUserPermissions(c.Locals("principal").(models2.User), perms...); err != nil {
+					} else if err := c.Locals("principal").(models.User).HasPermissions(perms...); err != nil {
 						return fiber.NewError(fiber.StatusForbidden, err.Error())
 					}
 				}

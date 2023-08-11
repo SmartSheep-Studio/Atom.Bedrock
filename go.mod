@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/IGLOU-EU/go-wildcard v1.0.3
 	github.com/go-playground/validator/v10 v10.14.0
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/robfig/cron/v3 v3.0.0

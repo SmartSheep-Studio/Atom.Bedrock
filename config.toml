@@ -48,5 +48,5 @@ display = "Matrix"
 workdir = "./dist/subapps/matrix"
 executable = "./Server.exe"
 arguments = []
-environments = []
+environment = []
 order = 10

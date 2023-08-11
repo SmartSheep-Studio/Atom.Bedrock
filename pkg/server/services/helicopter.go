@@ -12,39 +12,26 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 type HeLiCoPtErService struct {
 	log  zerolog.Logger
 	conf *viper.Viper
 
-	Apps []*HeLiCoPtErSubApp
+	Apps []*models.SubApp
 }
 
-type HeLiCoPtErExposedOptions struct {
-	URL string `json:"url"`
-}
-
-type HeLiCoPtErSubApp struct {
-	Manifest *models.SubApp `json:"manifest"`
-
-	Process        *os.Process               `json:"-"`
-	ExposedOptions *HeLiCoPtErExposedOptions `json:"exposed_options"`
-	LastHealthyAt  *time.Time                `json:"last_healthy_at"`
-}
-
-func NewHeLiCoPtErSubApp(manifest *models.SubApp) *HeLiCoPtErSubApp {
-	return &HeLiCoPtErSubApp{manifest, nil, nil, nil}
+func NewSubApp(manifest *models.SubAppManifest) *models.SubApp {
+	return &models.SubApp{manifest, nil, nil, nil}
 }
 
 func NewHeLiCoPtErService(cycle fx.Lifecycle, log zerolog.Logger, conf *viper.Viper) *HeLiCoPtErService {
-	inst := &HeLiCoPtErService{log, conf, []*HeLiCoPtErSubApp{}}
+	inst := &HeLiCoPtErService{log, conf, []*models.SubApp{}}
 
 	// Load config and parse apps
 	manifests, _ := inst.GetSubApps()
-	inst.Apps = lo.Map(manifests, func(item *models.SubApp, index int) *HeLiCoPtErSubApp {
-		return NewHeLiCoPtErSubApp(item)
+	inst.Apps = lo.Map(manifests, func(item *models.SubAppManifest, index int) *models.SubApp {
+		return NewSubApp(item)
 	})
 
 	// Hook into lifecycles to start subapps automatically
@@ -57,8 +44,8 @@ func NewHeLiCoPtErService(cycle fx.Lifecycle, log zerolog.Logger, conf *viper.Vi
 	return inst
 }
 
-func (v *HeLiCoPtErService) GetSubApps() ([]*models.SubApp, error) {
-	var apps []*models.SubApp
+func (v *HeLiCoPtErService) GetSubApps() ([]*models.SubAppManifest, error) {
+	var apps []*models.SubAppManifest
 	if raw, err := json.Marshal(v.conf.Get("helicopter.subapps")); err != nil {
 		return apps, err
 	} else {
@@ -74,19 +61,19 @@ func (v *HeLiCoPtErService) SaveSubApps() error {
 	return v.conf.SafeWriteConfig()
 }
 
-func (v *HeLiCoPtErService) NewSubApp(item models.SubApp) error {
-	v.Apps = append(v.Apps, NewHeLiCoPtErSubApp(lo.ToPtr(item)))
+func (v *HeLiCoPtErService) NewSubApp(item models.SubAppManifest) error {
+	v.Apps = append(v.Apps, NewSubApp(lo.ToPtr(item)))
 	return v.SaveSubApps()
 }
 
-func (v *HeLiCoPtErService) StartOne(app *HeLiCoPtErSubApp) error {
+func (v *HeLiCoPtErService) StartOne(app *models.SubApp) error {
 	// Genshin Impact, Boot!
 	cmd := exec.Command(app.Manifest.Executable, app.Manifest.Arguments...)
 	cmd.Dir = app.Manifest.Workdir
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Env = append(
-		app.Manifest.Environments,
+		app.Manifest.Environment,
 		append(
 			os.Environ(),
 			fmt.Sprintf(
@@ -122,7 +109,7 @@ func (v *HeLiCoPtErService) StartAll() error {
 	return nil
 }
 
-func (v *HeLiCoPtErService) StopOne(app *HeLiCoPtErSubApp) error {
+func (v *HeLiCoPtErService) StopOne(app *models.SubApp) error {
 	// Genshin Impact, Stop!
 	if app.Process == nil {
 		return fmt.Errorf("app %s isn't started yet", app.Manifest.Name)

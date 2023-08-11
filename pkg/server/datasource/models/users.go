@@ -1,6 +1,7 @@
 package models
 
 import (
+	"code.smartsheep.studio/atom/bedrock/pkg/kit/common"
 	"time"
 
 	"gorm.io/datatypes"
@@ -42,6 +43,14 @@ func (v User) GetPermissions() (map[string]any, error) {
 	}
 	// Return
 	return perms, nil
+}
+
+func (v User) HasPermissions(requires ...string) error {
+	if perms, err := v.GetPermissions(); err != nil {
+		return err
+	} else {
+		return common.MatchTree(perms, requires...)
+	}
 }
 
 const (

@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	models2 "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
-	hyperutils2 "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
+	models "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
+	hyperutils "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
 	services2 "code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"fmt"
@@ -39,12 +39,12 @@ func (ctrl *AuthController) Map(router *fiber.App) {
 		ctrl.signup,
 	)
 	router.Get("/api/auth/sessions",
-		ctrl.gatekeeper.Fn(true, hyperutils2.GenScope("read:id.sessions"), hyperutils2.GenPerms()),
+		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:id.sessions"), hyperutils.GenPerms()),
 		ctrl.securitySessions,
 	)
 	router.Delete(
 		"/api/auth/sessions",
-		ctrl.gatekeeper.Fn(true, hyperutils2.GenScope("delete:id.sessions"), hyperutils2.GenPerms()),
+		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("delete:id.sessions"), hyperutils.GenPerms()),
 		ctrl.securityTerminate,
 	)
 }
@@ -55,7 +55,7 @@ func (ctrl *AuthController) signin(c *fiber.Ctx) error {
 		Password string `json:"password" validate:"required"`
 	}
 
-	if err := hyperutils2.BodyParser(c, &req); err != nil {
+	if err := hyperutils.BodyParser(c, &req); err != nil {
 		return err
 	}
 
@@ -65,9 +65,9 @@ func (ctrl *AuthController) signin(c *fiber.Ctx) error {
 	}
 
 	exp := time.Now().Add(viper.GetDuration("security.sessions_alive_duration"))
-	session := models2.UserSession{
+	session := models.UserSession{
 		IpAddress: c.IP(),
-		Type:      models2.UserSessionTypeAuth,
+		Type:      models.UserSessionTypeAuth,
 		UserID:    user.ID,
 		ExpiredAt: &exp,
 		Scope:     datatypes.NewJSONSlice([]string{"*"}),
@@ -75,10 +75,10 @@ func (ctrl *AuthController) signin(c *fiber.Ctx) error {
 	}
 
 	if err := ctrl.db.Save(&session).Error; err != nil {
-		return hyperutils2.ErrorParser(err)
+		return hyperutils.ErrorParser(err)
 	}
 
-	_, token, err := ctrl.auth.NewJwt(session, models2.UserClaimsTypeAccess)
+	_, token, err := ctrl.auth.NewJwt(session, models.UserClaimsTypeAccess)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("failed to encode jwt: %s", err.Error()))
 	} else {
@@ -107,11 +107,11 @@ func (ctrl *AuthController) signup(c *fiber.Ctx) error {
 		Contact  string `json:"contact" validate:"required"`
 	}
 
-	if err := hyperutils2.BodyParser(c, &req); err != nil {
+	if err := hyperutils.BodyParser(c, &req); err != nil {
 		return err
 	}
 
-	contact := models2.UserContact{
+	contact := models.UserContact{
 		Name:        "Primary Contact",
 		Description: fmt.Sprintf("%s's Primary Contact", req.Name),
 		Content:     req.Contact,
@@ -119,44 +119,44 @@ func (ctrl *AuthController) signup(c *fiber.Ctx) error {
 	}
 
 	if ok, _ := regexp.Match("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", []byte(req.Contact)); ok {
-		contact.Type = models2.UserContactTypeEmail
+		contact.Type = models.UserContactTypeEmail
 	} else if ok, _ := regexp.Match("\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}\n", []byte(req.Contact)); ok {
-		contact.Type = models2.UserContactTypePhone
+		contact.Type = models.UserContactTypePhone
 	} else {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid contact type")
 	}
 
-	item := models2.User{
+	item := models.User{
 		Name:        req.Name,
 		Nickname:    req.Nickname,
 		Description: "The man is too lazy to write anything.",
 		Password:    req.Password,
-		Contacts:    []models2.UserContact{contact},
+		Contacts:    []models.UserContact{contact},
 	}
 
 	if err := ctrl.users.NewUser(&item); err != nil {
-		return hyperutils2.ErrorParser(err)
+		return hyperutils.ErrorParser(err)
 	} else {
 		return c.Status(fiber.StatusCreated).JSON(item)
 	}
 }
 
 func (ctrl *AuthController) securitySessions(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models2.User)
+	u := c.Locals("principal").(models.User)
 
-	var sessions []models2.UserSession
+	var sessions []models.UserSession
 	if err := ctrl.db.Where("user_id = ?", u.ID).Find(&sessions).Error; err != nil {
-		return hyperutils2.ErrorParser(err)
+		return hyperutils.ErrorParser(err)
 	}
 
 	// Load mentioned clients
-	clients := map[uint]*models2.OauthClient{}
+	clients := map[uint]*models.OauthClient{}
 	for _, session := range sessions {
 		if session.ClientID != nil {
 			if clients[*session.ClientID] == nil {
-				var client models2.OauthClient
+				var client models.OauthClient
 				if err := ctrl.db.Where("id = ?", session.ClientID).First(&client).Error; err != nil {
-					return hyperutils2.ErrorParser(err)
+					return hyperutils.ErrorParser(err)
 				} else {
 					clients[*session.ClientID] = &client
 				}
@@ -171,15 +171,15 @@ func (ctrl *AuthController) securitySessions(c *fiber.Ctx) error {
 }
 
 func (ctrl *AuthController) securityTerminate(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models2.User)
+	u := c.Locals("principal").(models.User)
 
-	id := strconv.Itoa(int(c.Locals("principal-session").(models2.UserSession).ID))
+	id := strconv.Itoa(int(c.Locals("principal-session").(models.UserSession).ID))
 	if len(c.Query("id")) > 0 {
 		id = c.Query("id")
 	}
 
-	if err := ctrl.db.Where("user_id = ? AND id = ?", u.ID, id).Delete(&models2.UserSession{}).Error; err != nil {
-		return hyperutils2.ErrorParser(err)
+	if err := ctrl.db.Where("user_id = ? AND id = ?", u.ID, id).Delete(&models.UserSession{}).Error; err != nil {
+		return hyperutils.ErrorParser(err)
 	} else {
 		return c.SendStatus(fiber.StatusNoContent)
 	}

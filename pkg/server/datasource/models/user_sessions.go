@@ -1,6 +1,7 @@
 package models
 
 import (
+	"code.smartsheep.studio/atom/bedrock/pkg/kit/common"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 
@@ -31,6 +32,16 @@ type UserSession struct {
 	UserID      uint                        `json:"user_id"`
 }
 
+// HasScope use non ptr receiver because it usually used in non ptr model
+//
+//goland:noinspection GoMixedReceiverTypes
+func (u UserSession) HasScope(requires ...string) error {
+	return common.MatchList(u.Scope, requires...)
+}
+
+// BeforeCreate is a gorm hook
+//
+//goland:noinspection GoMixedReceiverTypes
 func (u *UserSession) BeforeCreate(tx *gorm.DB) (err error) {
 	u.Location = "Unknown"
 

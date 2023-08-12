@@ -3,7 +3,7 @@ package hypertext
 import (
 	view "code.smartsheep.studio/atom/bedrock/packages/bedrock-web"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/controllers"
-	services2 "code.smartsheep.studio/atom/bedrock/pkg/server/services"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 
 	"context"
 	"github.com/gofiber/fiber/v2"
@@ -27,7 +27,7 @@ import (
 
 var server *fiber.App
 
-func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services2.MetricsService, cop *services2.HeLiCoPtErService) *fiber.App {
+func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.MetricsService, cop *services.HeLiCoPtErService) *fiber.App {
 	// Create app
 	server = fiber.New(fiber.Config{
 		Prefork:               viper.GetBool("hypertext.advanced.prefork"),

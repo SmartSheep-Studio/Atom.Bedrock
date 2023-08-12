@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	models "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
-	services2 "code.smartsheep.studio/atom/bedrock/pkg/server/services"
+	services "code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strings"
@@ -11,8 +11,8 @@ import (
 type AuthHandler func(force bool, scope []string, perms []string) fiber.Handler
 
 type AuthMiddleware struct {
-	auth  *services2.AuthService
-	users *services2.UserService
+	auth  *services.AuthService
+	users *services.UserService
 
 	Fn AuthHandler
 }
@@ -22,7 +22,7 @@ type AuthConfig struct {
 	LookupToken string
 }
 
-func NewAuth(auth *services2.AuthService, users *services2.UserService) *AuthMiddleware {
+func NewAuth(auth *services.AuthService, users *services.UserService) *AuthMiddleware {
 	cfg := AuthConfig{
 		Next:        nil,
 		LookupToken: "header: Authorization, query: token, cookie: authorization",

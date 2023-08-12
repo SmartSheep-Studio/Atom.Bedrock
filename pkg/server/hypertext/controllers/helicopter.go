@@ -21,7 +21,7 @@ func NewHeLiCoPtErController(cop *services.HeLiCoPtErService) *HeLiCoPtErControl
 
 func (v *HeLiCoPtErController) Map(router *fiber.App) {
 	router.Get("/cgi/subapps/:name", v.subappRewrite)
-	router.Post("/cgi/subapps", v.subappCommit)
+	router.Post("/cgi/subapps/:name", v.subappCommit)
 }
 
 func (v *HeLiCoPtErController) subappRewrite(c *fiber.Ctx) error {

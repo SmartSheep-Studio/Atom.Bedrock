@@ -1,5 +1,5 @@
 # Run image with this command
-# docker run --rm --name bedrock --net host -v $(pwd)/config.toml:/app/config.toml -v $(pwd)/plugins:/app/plugins -v $(pwd)/resources:/resources bedrock
+# docker run --rm --name bedrock --net host -v $(pwd)/config.toml:/app/config.toml -v $(pwd)/resources:/resources bedrock
 
 # Building Frontend
 FROM node:18-alpine as bedrock-web

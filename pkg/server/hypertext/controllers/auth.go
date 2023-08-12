@@ -4,7 +4,7 @@ import (
 	models "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	hyperutils "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
-	services2 "code.smartsheep.studio/atom/bedrock/pkg/server/services"
+	services "code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -19,12 +19,12 @@ import (
 
 type AuthController struct {
 	db         *gorm.DB
-	auth       *services2.AuthService
-	users      *services2.UserService
+	auth       *services.AuthService
+	users      *services.UserService
 	gatekeeper *middlewares.AuthMiddleware
 }
 
-func NewAuthController(db *gorm.DB, auth *services2.AuthService, users *services2.UserService, gatekeeper *middlewares.AuthMiddleware) *AuthController {
+func NewAuthController(db *gorm.DB, auth *services.AuthService, users *services.UserService, gatekeeper *middlewares.AuthMiddleware) *AuthController {
 	ctrl := &AuthController{db, auth, users, gatekeeper}
 	return ctrl
 }

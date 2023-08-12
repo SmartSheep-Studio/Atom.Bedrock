@@ -4,7 +4,7 @@ import (
 	models "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	hyperutils "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
-	services2 "code.smartsheep.studio/atom/bedrock/pkg/server/services"
+	services "code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"fmt"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
@@ -20,13 +20,13 @@ import (
 
 type UserController struct {
 	db         *gorm.DB
-	otp        *services2.OTPService
-	auth       *services2.AuthService
-	warehouse  *services2.StorageService
+	otp        *services.OTPService
+	auth       *services.AuthService
+	warehouse  *services.StorageService
 	gatekeeper *middlewares.AuthMiddleware
 }
 
-func NewUserController(db *gorm.DB, otp *services2.OTPService, auth *services2.AuthService, warehouse *services2.StorageService, gatekeeper *middlewares.AuthMiddleware) *UserController {
+func NewUserController(db *gorm.DB, otp *services.OTPService, auth *services.AuthService, warehouse *services.StorageService, gatekeeper *middlewares.AuthMiddleware) *UserController {
 	ctrl := &UserController{db, otp, auth, warehouse, gatekeeper}
 	return ctrl
 }

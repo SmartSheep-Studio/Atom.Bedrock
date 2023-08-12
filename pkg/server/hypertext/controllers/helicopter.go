@@ -40,7 +40,8 @@ func (v *HeLiCoPtErController) subappRewrite(c *fiber.Ctx) error {
 
 func (v *HeLiCoPtErController) subappCommit(c *fiber.Ctx) error {
 	var req struct {
-		URL string `json:"url"`
+		URL   string                     `json:"url"`
+		Pages []models.SubAppExposedPage `json:"pages"`
 	}
 
 	if err := hyperutils.BodyParser(c, &req); err != nil {
@@ -52,7 +53,8 @@ func (v *HeLiCoPtErController) subappCommit(c *fiber.Ctx) error {
 	}); ok {
 		if app.ExposedOptions == nil {
 			app.ExposedOptions = &models.SubAppExposedOptions{
-				URL: req.URL,
+				URL:   req.URL,
+				Pages: req.Pages,
 			}
 		}
 

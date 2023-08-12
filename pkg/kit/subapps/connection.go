@@ -15,7 +15,7 @@ type HeLiCoPtErConnection struct {
 	Configuration map[string]any  `json:"configuration"`
 }
 
-func PublishApp(url string, name string) (*HeLiCoPtErConnection, error) {
+func PublishApp(url string, name string, pages ...models.SubAppExposedPage) (*HeLiCoPtErConnection, error) {
 	endpoint := os.Getenv("BEDROCK_ENDPOINT_URL")
 	if len(endpoint) == 0 {
 		return nil, fmt.Errorf("couldn't get endpoint from environment variables")
@@ -24,7 +24,8 @@ func PublishApp(url string, name string) (*HeLiCoPtErConnection, error) {
 	client := resty.New()
 	res, err := client.R().
 		SetBody(fiber.Map{
-			"url": url,
+			"url":   url,
+			"pages": pages,
 		}).
 		SetResult(&HeLiCoPtErConnection{}).
 		Post(fmt.Sprintf("%s/cgi/subapps/%s", endpoint, name))

@@ -60,7 +60,12 @@ func (ctrl *StatusController) information(c *fiber.Ctx) error {
 			nav,
 			lo.Map(app.ExposedOptions.Pages, func(item models.SubAppExposedPage, index int) map[string]any {
 				v := hyperutils.CovertStructToMap(item)
-				v["to"] = fmt.Sprintf("%s%s", app.ExposedOptions.URL, v["path"])
+				v["to"] = fmt.Sprintf(
+					"%s/cgi/subapps/%s%s",
+					viper.GetString("base_url"),
+					app.Manifest.Name,
+					v["path"],
+				)
 
 				return v
 			})...,

@@ -111,14 +111,6 @@ func MapControllers(controllers []controllers.HypertextController, server *fiber
 	server.Get("/api/*", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "not found")
 	})
-	// Security check for CGIs
-	server.Use("/cgi/*", func(c *fiber.Ctx) error {
-		if !viper.GetBool("security.allow_remote_access_cgi") && c.IP() != "127.0.0.1" {
-			return fiber.NewError(fiber.StatusForbidden, "you was not allow to access CGIs")
-		} else {
-			return c.Next()
-		}
-	})
 	// Handle CGIs not found
 	server.Get("/cgi/*", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "not found")

@@ -14,7 +14,6 @@ mount_key = "WGqNUFNhED"
 cookies_domain = "localhost"
 sessions_alive_duration = "720h"
 jwt_signing_method = "HS512"
-allow_remote_access_cgi = false
 [security.groups.administrators]
 "*" = true
 [security.groups.verified_users]

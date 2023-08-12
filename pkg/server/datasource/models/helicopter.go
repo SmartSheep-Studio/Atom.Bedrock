@@ -16,7 +16,16 @@ type SubAppManifest struct {
 }
 
 type SubAppExposedOptions struct {
-	URL string `json:"url"`
+	URL   string              `json:"url"`
+	Pages []SubAppExposedPage `json:"pages"`
+}
+
+type SubAppExposedPage struct {
+	Icon  string         `json:"icon"`
+	Name  string         `json:"name"`
+	Title string         `json:"title"`
+	Path  string         `json:"path"`
+	Meta  map[string]any `json:"meta"`
 }
 
 type SubApp struct {

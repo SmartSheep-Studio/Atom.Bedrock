@@ -17,7 +17,7 @@
     "brand.fullname": "原子计划",
     "actions.sign-in": "登入",
     "actions.sign-up": "注册",
-    "nav.auth.principal": "账户",
+    "nav.users.personal-center": "账户",
     "actions.sign-out": "登出",
     "common.feedback.connecting": "连接中……",
     "common.feedback.network-error": "连接过程中发生错误……",

@@ -59,9 +59,9 @@ func (v *UserService) NewUser(item *models.User) error {
 	}
 
 	item.Notifications = append(item.Notifications, models.Notification{
-		Title:       fmt.Sprintf("Welcome to %s", v.conf.GetString("name")),
-		Description: fmt.Sprintf("Thanks for you choosing %s.", v.conf.GetString("name")),
-		Content:     fmt.Sprintf("Thanks for you registration of %s. Now go to explore the whole platform!", v.conf.GetString("name")),
+		Title:       fmt.Sprintf("Welcome to %s", v.conf.GetString("general.name")),
+		Description: fmt.Sprintf("Thanks for you choosing %s.", v.conf.GetString("general.name")),
+		Content:     fmt.Sprintf("Thanks for you registration of %s. Now go to explore the whole platform!", v.conf.GetString("general.name")),
 		Level:       models.NotificationLevelInfo,
 		SenderType:  models.NotificationSenderTypeSystem,
 		SenderID:    nil,

@@ -79,8 +79,14 @@ func (ctrl *UserController) self(c *fiber.Ctx) error {
 		return hyperutils.ErrorParser(err)
 	}
 
+	var notifyCount int64
+	if err := ctrl.db.Model(&models.Notification{}).Where("recipient_id = ?", user.ID).Count(&notifyCount).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	}
+
 	m := hyperutils.CovertStructToMap(user)
 	m["permissions"], _ = user.GetPermissions()
+	m["notifications"] = notifyCount
 
 	claims := c.Locals("principal-claims").(models.UserClaims)
 

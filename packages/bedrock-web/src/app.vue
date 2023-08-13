@@ -18,10 +18,12 @@
                 />
 
                 <div class="flex gap-3" v-if="!$principal.isSigned">
-                  <n-button @click="$router.push({ name: 'auth.sign-in' })">{{ $t("actions.sign-in") }}</n-button>
-                  <n-button type="primary" @click="$router.push({ name: 'auth.sign-out' })">{{
-                    $t("actions.sign-up")
-                  }}</n-button>
+                  <n-button @click="$router.push({ name: 'auth.sign-in' })">
+                    {{ $t("actions.sign-in") }}
+                  </n-button>
+                  <n-button type="primary" @click="$router.push({ name: 'auth.sign-up' })">
+                    {{$t("actions.sign-up") }}
+                  </n-button>
                 </div>
                 <div class="flex gap-3" v-else>
                   <n-dropdown placement="bottom-end" show-arrow :options="dropdownOptions" @select="dropdownHandler">
@@ -58,7 +60,7 @@ import { h, type Component, computed, type Ref, ref, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import { NIcon, type MenuOption, type DropdownOption } from "naive-ui";
 import { usePlaceholder } from "@/utils/placeholders";
-import { AccountCircleRound, LogOutRound } from "@vicons/material";
+import { AccountCircleRound, LogOutRound, EmailRound } from "@vicons/material";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -114,6 +116,7 @@ watch($route, (v) => {
 const dropdownOptions: DropdownOption[] = [
   { label: t("nav.users.personal-center"), key: "users.personal-center", icon: renderIcon(AccountCircleRound) },
   { label: t("actions.sign-out"), key: "auth.sign-out", icon: renderIcon(LogOutRound) },
+  { label: "Notifications", key: "users.notifications", icon: renderIcon(EmailRound) },
 ];
 
 function dropdownHandler(key: string) {

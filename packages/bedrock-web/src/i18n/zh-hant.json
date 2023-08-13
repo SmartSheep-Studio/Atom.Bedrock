@@ -5,7 +5,7 @@
     "brand.fullname": "原子計劃",
     "actions.sign-in": "登入",
     "actions.sign-up": "登出",
-    "nav.auth.principal": "賬戶",
+    "nav.users.personal-center": "賬戶",
     "actions.sign-out": "登出",
     "common.feedback.connecting": "正在連接中……",
     "common.feedback.network-error": "連接過程中產生了錯誤。",

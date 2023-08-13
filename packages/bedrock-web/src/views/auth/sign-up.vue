@@ -8,26 +8,26 @@
       <div class="w-96 mt-4">
         <n-card>
           <n-form ref="form" :rules="rules" :model="payload" @submit.prevent="submit">
-            <n-form-item :label="$t('pages.auth.sign-out.form.username')" path="name">
+            <n-form-item :label="$t('pages.auth.sign-up.form.username')" path="name">
               <n-input
                 v-model:value="payload.name"
-                :placeholder="$t('pages.auth.sign-out.form.username.placeholder')"
+                :placeholder="$t('pages.auth.sign-up.form.username.placeholder')"
               />
             </n-form-item>
-            <n-form-item :label="$t('pages.auth.sign-out.form.nickname')" path="nickname">
+            <n-form-item :label="$t('pages.auth.sign-up.form.nickname')" path="nickname">
               <n-input
                 v-model:value="payload.nickname"
-                :placeholder="$t('pages.auth.sign-out.form.nickname.placeholder')"
+                :placeholder="$t('pages.auth.sign-up.form.nickname.placeholder')"
               />
             </n-form-item>
-            <n-form-item :label="$t('pages.auth.sign-out.form.email')" path="contact">
-              <n-input v-model:value="payload.contact" :placeholder="$t('pages.auth.sign-out.form.email.placeholder')" />
+            <n-form-item :label="$t('pages.auth.sign-up.form.email')" path="contact">
+              <n-input v-model:value="payload.contact" :placeholder="$t('pages.auth.sign-up.form.email.placeholder')" />
             </n-form-item>
-            <n-form-item :label="$t('pages.auth.sign-out.form.password')" path="password">
+            <n-form-item :label="$t('pages.auth.sign-up.form.password')" path="password">
               <n-input
                 v-model:value="payload.password"
                 type="password"
-                :placeholder="$t('pages.auth.sign-out.form.password.placeholder')"
+                :placeholder="$t('pages.auth.sign-up.form.password.placeholder')"
               />
             </n-form-item>
 
@@ -76,25 +76,25 @@ const rules: FormRules = {
   name: {
     required: true,
     validator: (_, v) => new RegExp(/^\w+$/).test(v),
-    message: t('pages.auth.sign-out.form.username.validate'),
+    message: t('pages.auth.sign-up.form.username.validate'),
     trigger: ["blur", "input"]
   },
   nickname: {
     required: true,
     validator: (_, v) => v.length >= 4,
-    message: t('pages.auth.sign-out.form.nickname.validate'),
+    message: t('pages.auth.sign-up.form.nickname.validate'),
     trigger: ["blur", "input"]
   },
   contact: {
     required: true,
     validator: (_, v) => new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/).test(v),
-    message: t('pages.auth.sign-out.form.email.validate'),
+    message: t('pages.auth.sign-up.form.email.validate'),
     trigger: ["blur", "input"]
   },
   password: {
     required: true,
     validator: (_, v) => v.length >= 6,
-    message: t('pages.auth.sign-out.form.password.validate'),
+    message: t('pages.auth.sign-up.form.password.validate'),
     trigger: ["blur", "input"]
   }
 };
@@ -119,7 +119,7 @@ function submit() {
 
       await $principal.fetch();
 
-      $message.success(t('pages.auth.sign-out.feedback.success'));
+      $message.success(t('pages.auth.sign-up.feedback.success'));
       $router.push(await parseRedirect($route.query));
     } catch (e: any) {
       $message.error(t('common.feedback.unknown-error', [e]));

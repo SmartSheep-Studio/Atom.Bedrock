@@ -6,7 +6,7 @@
     "brand.fullname": "Project Atom",
     "actions.sign-in": "Sign in",
     "actions.sign-up": "Sign up",
-    "nav.auth.principal": "Account",
+    "nav.users.personal-center": "Account",
     "actions.sign-out": "Sign out",
     "common.feedback.connecting": "Connecting…",
     "common.feedback.network-error": "An error occurred during the connection.",

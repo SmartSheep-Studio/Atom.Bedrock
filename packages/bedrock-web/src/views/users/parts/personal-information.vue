@@ -132,7 +132,7 @@ function update() {
 
       $message.success(t('pages.users.personal-center.personal-information.feedback.success'));
     } catch (e: any) {
-      $message.error(t('common.feedback.unknown-error', [e]));
+      $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
     } finally {
       submitting.value = false;
     }
@@ -165,7 +165,7 @@ function personalise(mode: "avatar" | "banner") {
 
       $message.success(t('pages.users.personal-center.personal-information.feedback.success.personalise', [t(`pages.users.personal-center.personal-information.${mode}`)]));
     } catch (e: any) {
-      $message.error(t('common.feedback.unknown-error', [e]));
+      $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
     } finally {
       submitting.value = false;
     }

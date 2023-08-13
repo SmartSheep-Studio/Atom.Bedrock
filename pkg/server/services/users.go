@@ -22,12 +22,12 @@ func NewUserService(db *gorm.DB, conf *viper.Viper) *UserService {
 
 func (v *UserService) LookupUser(id string) (models.User, error) {
 	var user models.User
-	if err := v.db.Where("name = ?", id).First(&user).Error; err != nil {
+	if err := v.db.Where("name = ?", id).Preload("Locks").First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			var contact models.UserContact
 			if err := v.db.Where("content = ?", id).First(&contact).Error; err != nil {
 				return user, err
-			} else if err := v.db.Where("id = ?", contact.UserID).First(&user).Error; err != nil {
+			} else if err := v.db.Where("id = ?", contact.UserID).Preload("Locks").First(&user).Error; err != nil {
 				return user, err
 			}
 			return user, nil

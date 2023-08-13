@@ -146,7 +146,7 @@ async function fetch() {
     const res = await http.get("/api/auth/tokens");
     rawData.value = res.data;
   } catch (e: any) {
-    $message.error(t('common.feedback.unknown-error', [e]));
+    $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
   } finally {
     requesting.value = false;
   }
@@ -171,7 +171,7 @@ function create() {
         positiveText: t('actions.ok')
       });
     } catch (e: any) {
-      $message.error(t('common.feedback.unknown-error', [e]));
+      $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
     } finally {
       submitting.value = false;
     }
@@ -187,7 +187,7 @@ async function terminate(item: any) {
 
     $message.success(t('pages.users.personal-center.api-tokens.feedback.success.remove'));
   } catch (e: any) {
-    $message.error(t('common.feedback.unknown-error', [e]));
+    $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
   } finally {
     requesting.value = false;
   }

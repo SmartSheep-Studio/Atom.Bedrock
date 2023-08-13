@@ -105,7 +105,7 @@ func (v *AuthService) ReadClaims(claims models.UserClaims) (models.UserSession, 
 	}
 
 	var user models.User
-	if err := v.db.Where("id = ?", claims.Subject).Preload("Contacts").Preload("Groups").First(&user).Error; err != nil {
+	if err := v.db.Where("id = ?", claims.Subject).Preload("Contacts").Preload("Groups").Preload("Locks").First(&user).Error; err != nil {
 		return session, user, fmt.Errorf("could not found user: #%s, because %s", claims.Subject, err.Error())
 	}
 

@@ -62,6 +62,15 @@ func (ctrl *AuthController) signin(c *fiber.Ctx) error {
 	user, err := ctrl.auth.AuthUser(req.ID, req.Password)
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, "invalid username or password")
+	} else {
+		for _, lock := range user.Locks {
+			if lock.ExpiredAt == nil || lock.ExpiredAt.Unix() < time.Now().Unix() {
+				return fiber.NewError(
+					fiber.StatusForbidden,
+					fmt.Sprintf("your account has been locked, reason: %s", lock.Reason),
+				)
+			}
+		}
 	}
 
 	exp := time.Now().Add(viper.GetDuration("security.sessions_alive_duration"))

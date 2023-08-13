@@ -94,7 +94,8 @@ function submit() {
       $message.success(t('pages.auth.sign-in.feedback.success', [res.data.user.nickname]));
       $router.push(await parseRedirect($route.query));
     } catch (e: any) {
-      $message.error(t('common.feedback.unknown-error', [e]));
+      console.log(e);
+      $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
       submitting.value = false;
     }
   });

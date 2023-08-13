@@ -122,7 +122,7 @@ function submit() {
       $message.success(t('pages.auth.sign-up.feedback.success'));
       $router.push(await parseRedirect($route.query));
     } catch (e: any) {
-      $message.error(t('common.feedback.unknown-error', [e]));
+      $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
     } finally {
       submitting.value = false;
     }

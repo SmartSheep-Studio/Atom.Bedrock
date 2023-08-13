@@ -17,6 +17,7 @@ import (
 func RunMigration(db *gorm.DB) {
 	// Creating tables
 	if err := db.AutoMigrate(
+		&Lock{},
 		&User{},
 		&UserGroup{},
 		&Notification{},

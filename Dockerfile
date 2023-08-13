@@ -21,7 +21,7 @@ WORKDIR /source
 COPY . .
 COPY --from=bedrock-web /dist /source/packages/bedrock-web/dist
 RUN mkdir /dist
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /dist/server .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /dist/server ./pkg/cmd/server/main.go
 
 # Runtime
 FROM golang:alpine

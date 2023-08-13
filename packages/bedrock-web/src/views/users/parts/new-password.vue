@@ -67,7 +67,7 @@ function update() {
 
       $message.success(t('pages.users.personal-center.change-password.feedback.success'));
     } catch (e: any) {
-      $message.error(t('common.feedback.unknown-error', [e]));
+      $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
     } finally {
       submitting.value = false;
     }

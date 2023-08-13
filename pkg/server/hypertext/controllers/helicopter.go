@@ -5,7 +5,6 @@ import (
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/proxy"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
 	"time"
@@ -20,22 +19,7 @@ func NewHeLiCoPtErController(cop *services.HeLiCoPtErService) *HeLiCoPtErControl
 }
 
 func (v *HeLiCoPtErController) Map(router *fiber.App) {
-	router.Get("/cgi/subapps/:name", v.subappRewrite)
 	router.Post("/cgi/subapps/:name", v.subappCommit)
-}
-
-func (v *HeLiCoPtErController) subappRewrite(c *fiber.Ctx) error {
-	if app, ok := lo.Find(v.cop.Apps, func(item *models.SubApp) bool {
-		return item.Manifest.Name == c.Params("name")
-	}); ok {
-		if app.ExposedOptions == nil {
-			return fiber.NewError(fiber.StatusBadGateway, "the app isn't exposed")
-		} else {
-			return proxy.Forward(app.ExposedOptions.URL)(c)
-		}
-	} else {
-		return fiber.NewError(fiber.StatusBadGateway, "couldn't find app with your provided name")
-	}
 }
 
 func (v *HeLiCoPtErController) subappCommit(c *fiber.Ctx) error {

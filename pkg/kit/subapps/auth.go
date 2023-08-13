@@ -16,7 +16,7 @@ type HeLiCoPtErAccountResp struct {
 
 func (conn *HeLiCoPtErConnection) GetAccount(token string) (HeLiCoPtErAccountResp, error) {
 	client := resty.New()
-	res, err := client.R().SetAuthToken(token).SetResult(&HeLiCoPtErAccountResp{}).Get(conn.GetEndpointPath("/api/auth"))
+	res, err := client.R().SetAuthToken(token).SetResult(&HeLiCoPtErAccountResp{}).Get(conn.GetEndpointPath("/api/users/self"))
 
 	if err != nil {
 		return HeLiCoPtErAccountResp{}, err

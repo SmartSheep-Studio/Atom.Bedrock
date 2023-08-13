@@ -42,7 +42,7 @@ func NewAuth(auth *services.AuthService, users *services.UserService) *AuthMiddl
 			} else {
 				if err == nil {
 					for _, lock := range c.Locals("principal").(models.User).Locks {
-						if lock.ExpiredAt == nil || lock.ExpiredAt.Unix() < time.Now().Unix() {
+						if lock.ExpiredAt == nil || lock.ExpiredAt.Unix() >= time.Now().Unix() {
 							return fiber.NewError(
 								fiber.StatusForbidden,
 								fmt.Sprintf("your account has been locked, reason: %s", lock.Reason),

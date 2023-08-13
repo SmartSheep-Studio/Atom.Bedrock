@@ -75,7 +75,7 @@ func (ctrl *UserController) self(c *fiber.Ctx) error {
 	u := c.Locals("principal").(models.User)
 
 	var user models.User
-	if err := ctrl.db.Where("id = ?", u.ID).Preload("Contacts").First(&user).Error; err != nil {
+	if err := ctrl.db.Where("id = ?", u.ID).Preload("Contacts").Preload("Groups").First(&user).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	}
 

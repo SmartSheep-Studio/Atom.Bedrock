@@ -2,6 +2,8 @@ package models
 
 import (
 	"code.smartsheep.studio/atom/bedrock/pkg/kit/common"
+	"fmt"
+	"gorm.io/gorm"
 	"time"
 
 	"gorm.io/datatypes"
@@ -29,8 +31,10 @@ type User struct {
 	LockedAt      *time.Time                         `json:"locked_at"`
 }
 
+//goland:noinspection GoMixedReceiverTypes
 func (v User) GetPermissions() (map[string]any, error) {
 	perms := map[string]any{}
+	fmt.Println(v.Groups)
 	for _, group := range v.Groups {
 		// Merge into permissions map
 		for k, val := range group.Permissions.Data() {
@@ -38,19 +42,29 @@ func (v User) GetPermissions() (map[string]any, error) {
 		}
 	}
 	// User self's permissions will override group permissions
-	for k, v := range v.Permissions.Data() {
-		perms[k] = v
+	for k, val := range v.Permissions.Data() {
+		perms[k] = val
 	}
 	// Return
 	return perms, nil
 }
 
+//goland:noinspection GoMixedReceiverTypes
 func (v User) HasPermissions(requires ...string) error {
 	if perms, err := v.GetPermissions(); err != nil {
 		return err
 	} else {
 		return common.MatchTree(perms, requires...)
 	}
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (v *User) BeforeCreate(tx *gorm.DB) error {
+	if len(v.Permissions.Data()) == 0 {
+		v.Permissions = datatypes.NewJSONType(map[string]any{})
+	}
+
+	return nil
 }
 
 const (

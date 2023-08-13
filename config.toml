@@ -17,9 +17,9 @@ jwt_signing_method = "HS512"
 [security.groups.administrators]
 "*" = true
 [security.groups.verified_users]
-"personalize" = true
-"users.oauth.*" = true
-"assets.upload" = true
+"bedrock.personalize" = true
+"bedrock.users.oauth.*" = true
+"bedrock.assets.upload" = true
 
 [mailer]
 name = "SmartSheep Alphabot <alpha@mail.smartsheep.studio>"

@@ -40,19 +40,20 @@
 </template>
 
 <script lang="ts" setup>
+import { useMessage, useDialog, type FormInst, type FormRules } from "naive-ui";
 import { usePrincipal } from "@/stores/account";
 import { parseRedirect } from "@/utils/callback";
-import { http } from "@/utils/http";
 import { LockOpenFilled } from "@vicons/material";
-import { useMessage, type FormInst, type FormRules } from "naive-ui";
-import { reactive, ref } from "vue";
-import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
+import { reactive, ref, h } from "vue";
+import { http } from "@/utils/http";
+import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
 const $route = useRoute();
 const $router = useRouter();
+const $dialog = useDialog();
 const $message = useMessage();
 const $principal = usePrincipal();
 const $history: any = window.history.state;
@@ -94,8 +95,25 @@ function submit() {
       $message.success(t('pages.auth.sign-in.feedback.success', [res.data.user.nickname]));
       $router.push(await parseRedirect($route.query));
     } catch (e: any) {
-      console.log(e);
-      $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
+      if(e.response.status === 403) {
+        $dialog.error({
+          title: "Your account has been locked.",
+          content: () => {
+            const messages = [];
+            messages.push(h("div", `Your account has been locked by the administrator because ${e.response.data.reason}.`))
+            if(e.response.data.expired_at != null) {
+              messages.push(h("div", `Your account lock will be unlocked on ${new Date(e.response.data.expired_at).toLocaleString()}`))
+            } else {
+              messages.push(h("div", "Your account lock will not be automatically unlocked."))
+            }
+            messages.push(h("div", "If you have any questions, you can contact our members to appeal."))
+            messages.push(h("div", "Thanks for your understanding."))
+            return h("div", messages)
+          },
+        })
+      } else {
+        $message.error(t('common.feedback.unknown-error', [e.response.data ?? e.message]));
+      }
       submitting.value = false;
     }
   });

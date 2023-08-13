@@ -65,10 +65,7 @@ func (ctrl *AuthController) signin(c *fiber.Ctx) error {
 	} else {
 		for _, lock := range user.Locks {
 			if lock.ExpiredAt == nil || lock.ExpiredAt.Unix() >= time.Now().Unix() {
-				return fiber.NewError(
-					fiber.StatusForbidden,
-					fmt.Sprintf("your account has been locked, reason: %s", lock.Reason),
-				)
+				return c.Status(fiber.StatusForbidden).JSON(lock)
 			}
 		}
 	}

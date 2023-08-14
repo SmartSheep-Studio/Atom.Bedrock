@@ -31,17 +31,17 @@ func NewOpenIDController(db *gorm.DB, auth *services.AuthService, gatekeeper *mi
 
 func (ctrl *OpenIDController) Map(router *fiber.App) {
 	router.Get(
-		"/api/users/openid/connect",
+		"/api/auth/openid/connect",
 		ctrl.gatekeeper.Fn(false, hyperutils.GenScope(), hyperutils.GenPerms()),
 		ctrl.connect,
 	)
 	router.Post(
-		"/api/users/openid/connect",
+		"/api/auth/openid/connect",
 		ctrl.gatekeeper.Fn(false, hyperutils.GenScope(), hyperutils.GenPerms()),
 		ctrl.approve,
 	)
 	router.Post(
-		"/api/users/openid/exchange",
+		"/api/auth/openid/exchange",
 		ctrl.exchange,
 	)
 }

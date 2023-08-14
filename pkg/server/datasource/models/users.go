@@ -1,11 +1,12 @@
 package models
 
 import (
-	"code.smartsheep.studio/atom/bedrock/pkg/kit/common"
 	"fmt"
+	"time"
+
+	"code.smartsheep.studio/atom/bedrock/pkg/kit/common"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
-	"time"
 
 	"gorm.io/datatypes"
 )

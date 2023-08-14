@@ -1,16 +1,17 @@
 package controllers
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
 	models "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	hyperutils "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
 	services "code.smartsheep.studio/atom/bedrock/pkg/server/services"
-	"fmt"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -41,6 +42,11 @@ func (ctrl *UserController) Map(router *fiber.App) {
 		"/api/users/self/notifications",
 		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:notifications"), hyperutils.GenPerms()),
 		ctrl.selfNotifications,
+	)
+	router.Get(
+		"/api/users/self/locks",
+		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:locks"), hyperutils.GenPerms()),
+		ctrl.selfLocks,
 	)
 
 	router.Get(
@@ -122,6 +128,19 @@ func (ctrl *UserController) selfNotifications(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(notifications)
+	}
+}
+
+func (ctrl *UserController) selfLocks(c *fiber.Ctx) error {
+	u := c.Locals("principal").(models.User)
+
+	tx := ctrl.db.Where("user_id = ?", u.ID)
+
+	var locks []models.Lock
+	if err := tx.Find(&locks).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	} else {
+		return c.JSON(locks)
 	}
 }
 

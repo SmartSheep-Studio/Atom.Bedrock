@@ -30,4 +30,4 @@ COPY --from=bedrock-server /dist/server /app/server
 
 EXPOSE 9443
 
-CMD ["/app/server"]
+CMD ["/app/server", "serve"]

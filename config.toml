@@ -10,7 +10,6 @@ app_secret = "EKGP4chtyJkfVNJkwRVgku1ddZBbYMq9"
 user_contents = "dist/uploads"
 
 [security]
-mount_key = "WGqNUFNhED"
 cookies_domain = "localhost"
 sessions_alive_duration = "720h"
 jwt_signing_method = "HS512"

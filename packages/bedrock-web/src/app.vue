@@ -22,7 +22,7 @@
                     {{ $t("actions.sign-in") }}
                   </n-button>
                   <n-button type="primary" @click="$router.push({ name: 'auth.sign-up' })">
-                    {{$t("actions.sign-up") }}
+                    {{ $t("actions.sign-up") }}
                   </n-button>
                 </div>
                 <div class="flex gap-3" v-else>
@@ -56,11 +56,11 @@ import DataProvider from "@/data-provider.vue";
 import Gatekeeper from "@/components/global/gatekeeper.vue";
 import { useEndpoint } from "@/stores/connection";
 import { usePrincipal } from "@/stores/account";
-import { h, type Component, computed, type Ref, ref, watch } from "vue";
+import { type Component, computed, h, type Ref, ref, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
-import { NIcon, type MenuOption, type DropdownOption } from "naive-ui";
+import { type DropdownOption, type MenuOption, NIcon } from "naive-ui";
 import { usePlaceholder } from "@/utils/placeholders";
-import { AccountCircleRound, LogOutRound, EmailRound } from "@vicons/material";
+import { AccountCircleRound, EmailRound, LogOutRound } from "@vicons/material";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -79,15 +79,19 @@ const themeOverrides = {
     primaryColor: "#ca4d4dFF",
     primaryColorHover: "#DF5656FF",
     primaryColorPressed: "#C04747FF",
-    primaryColorSuppl: "#A84141FF",
-  },
+    primaryColorSuppl: "#A84141FF"
+  }
 };
 
 const menuKey = ref($route.name);
-const menuOptions: Ref<MenuOption[]> = computed(() =>
-  $principal.isSigned
-    ? [
-        ...($endpoint.nav?.map((v) => {
+const menuOptions: Ref<MenuOption[]> = computed(() => {
+    if ($principal.isSigned) {
+      const build = (list: any[]): any[] => {
+        if (list.length === 0) {
+          return [];
+        }
+
+        return list.map((v) => {
           return {
             label: () =>
               h(
@@ -95,18 +99,29 @@ const menuOptions: Ref<MenuOption[]> = computed(() =>
                 {
                   to: {
                     name: "framework.sub-app",
-                    params: { id: v.name },
-                  },
+                    params: { id: v.name }
+                  }
                 },
                 { default: () => v.title }
               ),
-            // @ts-ignore
-            icon: () => h(NIcon, null, { default: () => h("span", { class: `mdi ${v.icon}` }, null) }),
-            key: v.name,
+            icon: () =>
+              h(NIcon,
+                null,
+                {
+                  default: () => h("span", { class: `mdi ${v.icon}` }, null)
+                }
+              ),
+            children: v.children ? build(v.children) : undefined,
+            key: v.name
           };
-        }) ?? []),
-      ]
-    : []
+        });
+      };
+
+      return build($endpoint.nav);
+    } else {
+      return [];
+    }
+  }
 );
 
 watch($route, (v) => {
@@ -116,7 +131,7 @@ watch($route, (v) => {
 const dropdownOptions: DropdownOption[] = [
   { label: t("nav.users.personal-center"), key: "users.personal-center", icon: renderIcon(AccountCircleRound) },
   { label: t("actions.sign-out"), key: "auth.sign-out", icon: renderIcon(LogOutRound) },
-  { label: "Notifications", key: "users.notifications", icon: renderIcon(EmailRound) },
+  { label: "Notifications", key: "users.notifications", icon: renderIcon(EmailRound) }
 ];
 
 function dropdownHandler(key: string) {

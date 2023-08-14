@@ -5,6 +5,7 @@ import (
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
+	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
@@ -54,26 +55,77 @@ func (ctrl *StatusController) information(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusServiceUnavailable, "hypertext isn't prepared yet")
 	}
 
-	var nav []map[string]any
+	var pages []map[string]any
 	for _, app := range ctrl.cop.Apps {
-		nav = append(
-			nav,
+		pages = append(
+			pages,
 			lo.Map(app.ExposedOptions.Pages, func(item models.SubAppExposedPage, index int) map[string]any {
 				v := hyperutils.CovertStructToMap(item)
-				v["to"] = fmt.Sprintf(
-					"%s%s",
-					app.ExposedOptions.URL,
-					v["path"],
-				)
+				if app.ExposedOptions != nil {
+					v["to"] = fmt.Sprintf(
+						"%s%s",
+						app.ExposedOptions.URL,
+						v["path"],
+					)
+				}
 
 				return v
 			})...,
 		)
 	}
 
+	var nav []map[string]any
+	var navIn []any
+	raw, _ := json.Marshal(viper.Get("helicopter.nav.items"))
+	_ = json.Unmarshal(raw, &navIn)
+
+	for _, item := range lo.Map(navIn, func(item any, index int) map[string]any {
+		return hyperutils.CovertStructToMap(item)
+	}) {
+		var build func(item map[string]any) map[string]any
+
+		build = func(item map[string]any) map[string]any {
+			app, ok := lo.Find(ctrl.cop.Apps, func(v *models.SubApp) bool {
+				for _, page := range v.ExposedOptions.Pages {
+					if page.Name == item["name"] {
+						return true
+					}
+				}
+				return false
+			})
+
+			if !ok && item["children"] == nil {
+				return item
+			} else if item["children"] != nil {
+				item["children"] = lo.Map(item["children"].([]any), func(item any, index int) map[string]any {
+					return hyperutils.CovertStructToMap(item)
+				})
+				for idx, child := range item["children"].([]map[string]any) {
+					item["children"].([]map[string]any)[idx] = build(child)
+				}
+			}
+
+			if ok && app.ExposedOptions != nil {
+				if page, ok := lo.Find(app.ExposedOptions.Pages, func(v models.SubAppExposedPage) bool {
+					return v.Name == item["name"]
+				}); ok {
+					item["to"] = fmt.Sprintf(
+						"%s%s",
+						app.ExposedOptions.URL,
+						page.Path,
+					)
+				}
+			}
+
+			return item
+		}
+
+		nav = append(nav, build(item))
+	}
+
 	firmware := strings.Split(c.App().Config().AppName, " ")
 	return c.JSON(fiber.Map{
-		"debug":            viper.GetBool("general.debug"),
+		"debug":            viper.GetBool("debug"),
 		"firmware":         strings.Join(firmware[:len(firmware)-1], " "),
 		"firmware_version": firmware[len(firmware)-1],
 		"manifest": fiber.Map{
@@ -85,6 +137,7 @@ func (ctrl *StatusController) information(c *fiber.Ctx) error {
 			"prefork":       c.App().Config().Prefork,
 			"max_body_size": c.App().Config().BodyLimit,
 		},
-		"nav": nav,
+		"pages": pages,
+		"nav":   nav,
 	})
 }

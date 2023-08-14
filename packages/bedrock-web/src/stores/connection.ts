@@ -8,6 +8,7 @@ export const useEndpoint = defineStore("endpoint", () => {
   const external = ref<any[]>([])
   const limit = ref<any>({})
   const info = ref<any>({})
+  const pages = ref<any[]>([])
   const nav = ref<any[]>([])
 
     async function fetch() {
@@ -17,6 +18,7 @@ export const useEndpoint = defineStore("endpoint", () => {
       firmware.version = res.data.firmware_version
       limit.value = res.data.limit
       info.value = res.data.manifest
+      pages.value = res.data.pages
       nav.value = res.data.nav
     } catch (e: any) {
       isPrepared.value = e.response.status !== 503;
@@ -27,5 +29,5 @@ export const useEndpoint = defineStore("endpoint", () => {
     document.title = info.value.name ?? "Project Atom"
   }
 
-  return { isPrepared, nav, external, firmware, limit, info, fetch }
+  return { isPrepared, pages, nav, external, firmware, limit, info, fetch }
 })

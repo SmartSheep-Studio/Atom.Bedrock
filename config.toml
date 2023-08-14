@@ -41,8 +41,6 @@ dsn = "host=localhost user=postgres password=password dbname=bedrock port=5432 s
 
 [helicopter]
 enabled = true
-[helicopter.nav]
-mode = "flat"
 
 [[helicopter.nav.items]]
 name = "matrix"
@@ -55,11 +53,20 @@ icon = "mdi-code-tags"
 children = [
     { name = "stackcloud", title = "Stackcloud", icon = "mdi-cloud" }
 ]
+
 [[helicopter.subapps]]
 name = "matrix"
 display = "Matrix"
 workdir = "./dist/subapps/matrix"
 executable = "./Matrix.exe"
+arguments = ["serve"]
+environment = []
+order = 10
+[[helicopter.subapps]]
+name = "stackcloud"
+display = "Stackcloud"
+workdir = "./dist/subapps/stackcloud"
+executable = "./Stackcloud.exe"
 arguments = ["serve"]
 environment = []
 order = 10

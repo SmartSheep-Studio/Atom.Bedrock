@@ -36,8 +36,8 @@ func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.Metr
 		StrictRouting:         false,
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
-		ServerHeader:          "Neutron",
-		AppName:               "Neutron v2.0",
+		ServerHeader:          "Bedrock",
+		AppName:               "Bedrock v2.0",
 		BodyLimit:             viper.GetInt("hypertext.max_body_size"),
 	})
 

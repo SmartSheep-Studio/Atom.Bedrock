@@ -7,7 +7,7 @@
             Notifications
           </div>
           <div class="text-md">
-            You have <b class="font-mono">{{ $principal.account?.notifications }}</b> unread messages.
+            You have <b class="font-mono">{{ $principal.account?.notifications_count }}</b> unread messages.
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-debug = true
+debug = false
 base_url = "http://localhost:9443"
 
 [general]

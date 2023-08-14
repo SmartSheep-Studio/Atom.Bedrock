@@ -14,23 +14,24 @@ import (
 type User struct {
 	Model
 
-	AvatarUrl     string                             `json:"avatar_url"`
-	BannerUrl     string                             `json:"banner_url"`
-	Name          string                             `json:"name" gorm:"uniqueIndex"`
-	Nickname      string                             `json:"nickname"`
-	Password      string                             `json:"-"`
-	Description   string                             `json:"description"`
-	Contacts      []UserContact                      `json:"contacts"`
-	Notifications []Notification                     `json:"notifications" gorm:"foreignKey:RecipientID"`
-	OauthClients  []OauthClient                      `json:"oauth_clients"`
-	Sessions      []UserSession                      `json:"sessions"`
-	PassCodes     []OTP                              `json:"passcodes"`
-	Assets        []StorageFile                      `json:"user_assets"`
-	Friends       []*User                            `json:"friends" gorm:"many2many:user_friends"`
-	Groups        []UserGroup                        `json:"groups" gorm:"many2many:user_joined_groups"`
-	Locks         []Lock                             `json:"locks"`
-	Permissions   datatypes.JSONType[map[string]any] `json:"permissions"`
-	VerifiedAt    *time.Time                         `json:"verified_at"`
+	AvatarUrl          string                             `json:"avatar_url"`
+	BannerUrl          string                             `json:"banner_url"`
+	Name               string                             `json:"name" gorm:"uniqueIndex"`
+	Nickname           string                             `json:"nickname"`
+	Password           string                             `json:"-"`
+	Description        string                             `json:"description"`
+	Contacts           []UserContact                      `json:"contacts"`
+	Notifications      []Notification                     `json:"notifications" gorm:"foreignKey:RecipientID"`
+	NotificationsCount int64                              `json:"notifications_count" gorm:"-"`
+	OauthClients       []OauthClient                      `json:"oauth_clients"`
+	Sessions           []UserSession                      `json:"sessions"`
+	PassCodes          []OTP                              `json:"passcodes"`
+	Assets             []StorageFile                      `json:"user_assets"`
+	Friends            []*User                            `json:"friends" gorm:"many2many:user_friends"`
+	Groups             []UserGroup                        `json:"groups" gorm:"many2many:user_joined_groups"`
+	Locks              []Lock                             `json:"locks"`
+	Permissions        datatypes.JSONType[map[string]any] `json:"permissions"`
+	VerifiedAt         *time.Time                         `json:"verified_at"`
 }
 
 //goland:noinspection GoMixedReceiverTypes

@@ -60,7 +60,7 @@ func (v *AuthService) NewJwt(session models.UserSession, flag string, audience .
 		expires = jwt.NewNumericDate(*session.ExpiredAt)
 	}
 
-	audience = append(audience, viper.GetString("name"))
+	audience = append(audience, viper.GetString("general.name"))
 	claims := models.UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    viper.GetString("base_url"),

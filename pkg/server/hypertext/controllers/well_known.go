@@ -26,7 +26,7 @@ func (ctrl *WellKnownController) Map(router *fiber.App) {
 
 func (ctrl *WellKnownController) oauth(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
-		"issuer":                   viper.GetString("general.base_url"),
+		"issuer":                   viper.GetString("base_url"),
 		"authorization_endpoint":   fmt.Sprintf("%s/auth/openid/connect", viper.GetString("base_url")),
 		"token_endpoint":           fmt.Sprintf("%s/api/auth/openid/exchange", viper.GetString("base_url")),
 		"response_types_supported": []string{"code", "token"},
@@ -54,7 +54,7 @@ func (ctrl *WellKnownController) oauth(c *fiber.Ctx) error {
 
 func (ctrl *WellKnownController) openid(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
-		"issuer":                   viper.GetString("general.base_url"),
+		"issuer":                   viper.GetString("base_url"),
 		"authorization_endpoint":   fmt.Sprintf("%s/auth/openid/connect", viper.GetString("base_url")),
 		"token_endpoint":           fmt.Sprintf("%s/api/auth/openid/exchange", viper.GetString("base_url")),
 		"userinfo_endpoint":        fmt.Sprintf("%s/api/users/self", viper.GetString("base_url")),

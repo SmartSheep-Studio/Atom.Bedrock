@@ -47,7 +47,6 @@ func (ctrl *OpenIDController) Map(router *fiber.App) {
 }
 
 func (ctrl *OpenIDController) connect(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models.User)
 	ok := c.Locals("principal-ok").(bool)
 
 	id := c.Query("client_id")
@@ -68,6 +67,8 @@ func (ctrl *OpenIDController) connect(c *fiber.Ctx) error {
 			"session": nil,
 		})
 	}
+
+	u := c.Locals("principal").(models.User)
 
 	var session models.UserSession
 	if err := ctrl.db.Where("user_id = ? AND client_id = ? AND ip_address = ?", u.ID, client.ID, c.IP()).First(&session); err == nil {

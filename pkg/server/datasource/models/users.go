@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"code.smartsheep.studio/atom/bedrock/pkg/kit/common"
@@ -37,7 +36,6 @@ type User struct {
 //goland:noinspection GoMixedReceiverTypes
 func (v User) GetPermissions() (map[string]any, error) {
 	perms := map[string]any{}
-	fmt.Println(v.Groups)
 	for _, group := range v.Groups {
 		// Merge into permissions map
 		for k, val := range group.Permissions.Data() {

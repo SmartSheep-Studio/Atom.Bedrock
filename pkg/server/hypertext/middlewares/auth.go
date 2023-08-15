@@ -56,9 +56,9 @@ func NewAuth(auth *services.AuthService, users *services.UserService) *AuthMiddl
 						return fiber.NewError(fiber.StatusForbidden, err.Error())
 					}
 				}
-
-				c.Locals("principal-ok", err == nil)
 			}
+
+			c.Locals("principal-ok", err == nil)
 
 			return c.Next()
 		}

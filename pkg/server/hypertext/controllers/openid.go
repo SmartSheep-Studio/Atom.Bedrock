@@ -107,6 +107,12 @@ func (ctrl *OpenIDController) approve(c *fiber.Ctx) error {
 	} else if !c.Locals("principal-ok").(bool) {
 		if u, err = ctrl.auth.AuthUser(req.ID, req.Password); err != nil {
 			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
+		} else {
+			for _, lock := range u.Locks {
+				if lock.ExpiredAt == nil || lock.ExpiredAt.Unix() >= time.Now().Unix() {
+					return c.Status(fiber.StatusForbidden).JSON(lock)
+				}
+			}
 		}
 	} else {
 		u = c.Locals("principal").(models.User)
@@ -269,6 +275,12 @@ func (ctrl *OpenIDController) exchange(c *fiber.Ctx) error {
 		user, err = ctrl.auth.AuthUser(req.ID, req.Password)
 		if err != nil {
 			return fiber.NewError(fiber.StatusUnauthorized, "invalid username or password")
+		} else {
+			for _, lock := range user.Locks {
+				if lock.ExpiredAt == nil || lock.ExpiredAt.Unix() >= time.Now().Unix() {
+					return c.Status(fiber.StatusForbidden).JSON(lock)
+				}
+			}
 		}
 
 		exp := time.Now().Add(7 * 24 * time.Hour)

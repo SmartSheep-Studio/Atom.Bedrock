@@ -10,8 +10,8 @@ export function hasUserPermissions(...requires: string[]) {
 
   for (const require of requires) {
     let passed = false;
-    for (const perm of $principal.account.permissions ?? []) {
-      if (wildcard(perm)(require)) {
+    for (const [k, v] of Object.entries($principal.account.permissions) ?? []) {
+      if (v == true && wildcard(k)(require)) {
         passed = true;
         break;
       }

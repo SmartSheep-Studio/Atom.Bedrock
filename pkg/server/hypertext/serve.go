@@ -47,7 +47,7 @@ func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.Metr
 	server.Use(requestid.New())
 	server.Use(etag.New())
 	server.Use(limiter.New(limiter.Config{
-		Max:               20,
+		Max:               120,
 		Expiration:        30 * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
@@ -83,7 +83,7 @@ func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.Metr
 				}
 			}()
 
-			if conf.GetBool("helicopter.enabled") {
+			if conf.GetBool("helicopter.autostart_enabled") {
 				if err := cop.StartAll(); err != nil {
 					log.Err(err).Msg("HeLiCoPtEr start failed...")
 				}
@@ -110,6 +110,14 @@ func MapControllers(controllers []controllers.HypertextController, server *fiber
 	// Handle APIs not found
 	server.Get("/api/*", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "not found")
+	})
+	// Handle CGIs security check
+	server.Use("/cgi/*", func(c *fiber.Ctx) error {
+		if !lo.Contains(viper.GetStringSlice("security.cgi_whitelist"), c.IP()) {
+			return fiber.NewError(fiber.StatusForbidden, "you are not in the common gateway interface access whitelist!")
+		} else {
+			return c.Next()
+		}
 	})
 	// Handle CGIs not found
 	server.Get("/cgi/*", func(c *fiber.Ctx) error {

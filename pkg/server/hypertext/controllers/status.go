@@ -57,21 +57,22 @@ func (ctrl *StatusController) information(c *fiber.Ctx) error {
 
 	var pages []map[string]any
 	for _, app := range ctrl.cop.Apps {
-		pages = append(
-			pages,
-			lo.Map(app.ExposedOptions.Pages, func(item models.SubAppExposedPage, index int) map[string]any {
-				v := hyperutils.CovertStructToMap(item)
-				if app.ExposedOptions != nil {
+		if app.ExposedOptions != nil {
+			pages = append(
+				pages,
+				lo.Map(app.ExposedOptions.Pages, func(item models.SubAppExposedPage, index int) map[string]any {
+					v := hyperutils.CovertStructToMap(item)
 					v["to"] = fmt.Sprintf(
-						"%s%s",
-						app.ExposedOptions.URL,
+						"%s/srv/subapps/%s%s",
+						viper.GetString("base_url"),
+						app.Manifest.Name,
 						v["path"],
 					)
-				}
 
-				return v
-			})...,
-		)
+					return v
+				})...,
+			)
+		}
 	}
 
 	var nav []map[string]any
@@ -85,7 +86,14 @@ func (ctrl *StatusController) information(c *fiber.Ctx) error {
 		var build func(item map[string]any) map[string]any
 
 		build = func(item map[string]any) map[string]any {
+			if item["to"] != nil {
+				return item
+			}
+
 			app, ok := lo.Find(ctrl.cop.Apps, func(v *models.SubApp) bool {
+				if v.ExposedOptions == nil {
+					return false
+				}
 				for _, page := range v.ExposedOptions.Pages {
 					if page.Name == item["name"] {
 						return true
@@ -110,8 +118,9 @@ func (ctrl *StatusController) information(c *fiber.Ctx) error {
 					return v.Name == item["name"]
 				}); ok {
 					item["to"] = fmt.Sprintf(
-						"%s%s",
-						app.ExposedOptions.URL,
+						"%s/srv/subapps/%s%s",
+						viper.GetString("base_url"),
+						app.Manifest.Name,
 						page.Path,
 					)
 				}

@@ -33,6 +33,7 @@ export default defineConfig({
     proxy: {
       "/api": "http://127.0.0.1:9443",
       "/cgi": "http://127.0.0.1:9443",
+      "/srv": "http://127.0.0.1:9443",
     },
   },
 });

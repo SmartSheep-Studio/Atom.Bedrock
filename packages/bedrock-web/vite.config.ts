@@ -15,25 +15,34 @@ export default defineConfig({
       imports: [
         "vue",
         {
-          "naive-ui": ["useDialog", "useMessage", "useNotification", "useLoadingBar"],
-        },
-      ],
+          "naive-ui": ["useDialog", "useMessage", "useNotification", "useLoadingBar"]
+        }
+      ]
     }),
     Components({
-      resolvers: [NaiveUiResolver()],
+      resolvers: [NaiveUiResolver()]
     }),
-    VueI18nPlugin({ runtimeOnly: false }),
+    VueI18nPlugin({ runtimeOnly: false })
   ],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
+      "@": fileURLToPath(new URL("./src", import.meta.url))
+    }
   },
   server: {
     proxy: {
-      "/api": "http://127.0.0.1:9443",
-      "/cgi": "http://127.0.0.1:9443",
-      "/srv": "http://127.0.0.1:9443",
-    },
-  },
+      "/api": {
+        target: "http://127.0.0.1:9443",
+        changeOrigin: true
+      },
+      "/cgi": {
+        target: "http://127.0.0.1:9443",
+        changeOrigin: true
+      },
+      "/srv": {
+        target: "http://127.0.0.1:9443",
+        changeOrigin: true
+      }
+    }
+  }
 });

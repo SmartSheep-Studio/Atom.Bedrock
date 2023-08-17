@@ -30,9 +30,10 @@ password = "123456789"
 
 [hypertext]
 bind_addr = ":9443"
+max_body_size = 4194304
+max_request_count = 120
 [hypertext.advanced]
 prefork = false
-max_body_size = 4194304
 
 [datasource]
 [datasource.master]

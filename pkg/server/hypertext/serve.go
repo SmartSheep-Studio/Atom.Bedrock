@@ -47,7 +47,7 @@ func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.Metr
 	server.Use(requestid.New())
 	server.Use(etag.New())
 	server.Use(limiter.New(limiter.Config{
-		Max:               120,
+		Max:               conf.GetInt("hypertext.max_request_count"),
 		Expiration:        30 * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))

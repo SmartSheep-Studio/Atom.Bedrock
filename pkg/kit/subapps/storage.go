@@ -17,7 +17,7 @@ func (conn *HeLiCoPtErConnection) UploadAssets(name string, reader io.Reader) (m
 	if err != nil {
 		return models.StorageFile{}, err
 	} else if res.StatusCode() != 200 {
-		return models.StorageFile{}, fmt.Errorf("failed to get principal: %s", string(res.Body()))
+		return models.StorageFile{}, fmt.Errorf("failed to upload: %s", string(res.Body()))
 	} else {
 		ply := res.Result().(*models.StorageFile)
 		return *ply, nil
@@ -35,7 +35,7 @@ func (conn *HeLiCoPtErConnection) UploadAssets2User(tk string, name string, read
 	if err != nil {
 		return models.StorageFile{}, err
 	} else if res.StatusCode() != 200 {
-		return models.StorageFile{}, fmt.Errorf("failed to get principal: %s", string(res.Body()))
+		return models.StorageFile{}, fmt.Errorf("failed to upload: %s", string(res.Body()))
 	} else {
 		ply := res.Result().(*models.StorageFile)
 		return *ply, nil

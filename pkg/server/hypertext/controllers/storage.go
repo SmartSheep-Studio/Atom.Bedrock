@@ -48,11 +48,11 @@ func (ctrl *StorageController) read(c *fiber.Ctx) error {
 		tx = ctrl.db.Where("storage_id = ?", probe)
 	}
 
-	var f models.StorageFile
-	if err := tx.First(&f).Error; err != nil {
+	var item models.StorageFile
+	if err := tx.First(&item).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	} else {
-		return c.Download(filepath.Join(viper.GetString("paths.user_contents"), f.StorageID), f.Name)
+		return c.Download(filepath.Join(viper.GetString("paths.user_contents"), item.StorageID), item.Name)
 	}
 }
 

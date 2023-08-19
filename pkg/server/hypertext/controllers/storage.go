@@ -30,9 +30,10 @@ func (ctrl *StorageController) Map(router *fiber.App) {
 		"/api/assets/:id",
 		ctrl.read,
 	)
+
 	router.Post(
-		"/api/assets",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("create:assets"), hyperutils.GenPerms("assets.upload")),
+		"/cgi/assets",
+		ctrl.gatekeeper.Fn(false, hyperutils.GenScope("create:assets"), hyperutils.GenPerms("assets.upload")),
 		ctrl.upload,
 	)
 }
@@ -56,16 +57,23 @@ func (ctrl *StorageController) read(c *fiber.Ctx) error {
 }
 
 func (ctrl *StorageController) upload(c *fiber.Ctx) error {
-	user := c.Locals("principal").(models.User)
-
 	file, err := c.FormFile("file")
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	if f, err := ctrl.warehouse.SaveFile2User(c, file, user, models.StorageFileCustomType); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	if ok := c.Locals("principal-ok").(bool); ok {
+		user := c.Locals("principal").(models.User)
+		if item, err := ctrl.warehouse.SaveFile2User(c, file, user, models.StorageFileCustomType); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		} else {
+			return c.JSON(item)
+		}
 	} else {
-		return c.JSON(f)
+		if item, err := ctrl.warehouse.SaveFile(c, file, models.StorageFileCustomType); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		} else {
+			return c.JSON(item)
+		}
 	}
 }

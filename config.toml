@@ -44,6 +44,10 @@ dsn = "host=localhost user=postgres password=password dbname=bedrock port=5432 s
 autostart_enabled = false
 
 [[helicopter.nav.items]]
+name = "quaso"
+title = "Quaso"
+icon = "comment-text-outline"
+[[helicopter.nav.items]]
 name = "matrix"
 title = "Matrix"
 icon = "mdi-store"
@@ -68,6 +72,14 @@ name = "stackcloud"
 display = "Stackcloud"
 workdir = "./dist/subapps/stackcloud"
 executable = "./Stackcloud.exe"
+arguments = ["serve"]
+environment = []
+order = 10
+[[helicopter.subapps]]
+name = "quaso"
+display = "Quaso"
+workdir = "./dist/subapps/quaso"
+executable = "./Quaso.exe"
 arguments = ["serve"]
 environment = []
 order = 10

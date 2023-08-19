@@ -16,7 +16,10 @@ type HeLiCoPtErAccountResp struct {
 
 func (conn *HeLiCoPtErConnection) GetAccount(token string) (HeLiCoPtErAccountResp, error) {
 	client := resty.New()
-	res, err := client.R().SetAuthToken(token).SetResult(&HeLiCoPtErAccountResp{}).Get(conn.GetEndpointPath("/api/users/self"))
+	res, err := client.R().
+		SetAuthToken(token).
+		SetResult(&HeLiCoPtErAccountResp{}).
+		Get(conn.GetEndpointPath("/api/users/self"))
 
 	if err != nil {
 		return HeLiCoPtErAccountResp{}, err
@@ -29,7 +32,12 @@ func (conn *HeLiCoPtErConnection) GetAccount(token string) (HeLiCoPtErAccountRes
 }
 
 func (conn *HeLiCoPtErConnection) GetConnectURL(id string, callback string) string {
-	return fmt.Sprintf("%s?response_type=code&client_id=%s&redirect_uri=%s&scope=all", conn.GetEndpointPath("/auth/openid/connect"), id, callback)
+	return fmt.Sprintf(
+		"%s?response_type=code&client_id=%s&redirect_uri=%s&scope=all",
+		conn.GetEndpointPath("/auth/openid/connect"),
+		id,
+		callback,
+	)
 }
 
 func (conn *HeLiCoPtErConnection) GetAccessToken(code string, id string, secret string, callback string) (string, models.UserSession, error) {

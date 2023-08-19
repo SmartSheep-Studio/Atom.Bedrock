@@ -5,6 +5,9 @@ import (
 	hyperutils "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
+	"io"
+	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 
@@ -30,6 +33,10 @@ func (ctrl *StorageController) Map(router *fiber.App) {
 		"/api/assets/:id",
 		ctrl.read,
 	)
+	router.Get(
+		"/api/assets/:id/meta",
+		ctrl.readMeta,
+	)
 
 	router.Post(
 		"/cgi/assets",
@@ -53,6 +60,34 @@ func (ctrl *StorageController) read(c *fiber.Ctx) error {
 		return hyperutils.ErrorParser(err)
 	} else {
 		return c.Download(filepath.Join(viper.GetString("paths.user_contents"), item.StorageID), item.Name)
+	}
+}
+
+func (ctrl *StorageController) readMeta(c *fiber.Ctx) error {
+	probe := c.Params("id")
+
+	var tx *gorm.DB
+	if _, err := strconv.Atoi(probe); err == nil {
+		tx = ctrl.db.Where("id = ?", probe)
+	} else {
+		tx = ctrl.db.Where("storage_id = ?", probe)
+	}
+
+	var item models.StorageFile
+	if err := tx.First(&item).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	}
+
+	if file, err := os.Open(filepath.Join(viper.GetString("paths.user_contents"), item.StorageID)); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	} else if data, err := io.ReadAll(file); err != nil {
+		return c.JSON(fiber.Map{
+			"record":   item,
+			"mimetype": http.DetectContentType(data),
+			"size":     item.Size,
+		})
+	} else {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 }
 

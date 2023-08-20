@@ -5,7 +5,6 @@ import (
 	hyperutils "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -78,16 +77,14 @@ func (ctrl *StorageController) readMeta(c *fiber.Ctx) error {
 		return hyperutils.ErrorParser(err)
 	}
 
-	if file, err := os.Open(filepath.Join(viper.GetString("paths.user_contents"), item.StorageID)); err != nil {
+	if data, err := os.ReadFile(filepath.Join(viper.GetString("paths.user_contents"), item.StorageID)); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	} else if data, err := io.ReadAll(file); err != nil {
+	} else {
 		return c.JSON(fiber.Map{
 			"record":   item,
 			"mimetype": http.DetectContentType(data),
 			"size":     item.Size,
 		})
-	} else {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 }
 

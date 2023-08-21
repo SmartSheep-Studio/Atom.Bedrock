@@ -46,7 +46,7 @@ autostart_enabled = false
 [[helicopter.nav.items]]
 name = "quaso"
 title = "Quaso"
-icon = "comment-text-outline"
+icon = "mdi-food-croissant"
 [[helicopter.nav.items]]
 name = "matrix"
 title = "Matrix"

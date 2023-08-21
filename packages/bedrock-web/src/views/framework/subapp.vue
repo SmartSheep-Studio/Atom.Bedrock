@@ -1,11 +1,12 @@
 <template>
   <wujie-vue
     sync
-    id="sub-app-container"
+    id="subapp-container"
     height="calc(100vh - 72px)"
     width="100%"
-    name="p"
+    name="q"
     :url="page.to"
+    :prefix="pagePrefix"
   />
 </template>
 
@@ -20,5 +21,20 @@ const $endpoint = useEndpoint();
 
 const page = computed(() => $endpoint.pages.filter((v) => v.name === $route.params.id)[0]);
 const host = computed(() => Base64.decode($route.params.host as string));
-const url = computed(() => `//${host.value}${$route.params.path}`);
+
+const pagePrefix = computed(() => {
+  return { q: `/srv/subapps/${page.value.name}` };
+});
+
+function updateState() {
+  window.__BEDROCK = {
+    isUnderShadow: true,
+    layout: {
+      isDisplayHeader: true,
+      contentHeight: "calc(100vh - 72px)"
+    }
+  };
+}
+
+updateState();
 </script>

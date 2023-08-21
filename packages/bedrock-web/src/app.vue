@@ -98,7 +98,7 @@ const menuOptions: Ref<MenuOption[]> = computed(() => {
                 RouterLink,
                 {
                   to: {
-                    name: "framework.sub-app",
+                    name: "framework.subapp",
                     params: { id: v.name }
                   }
                 },

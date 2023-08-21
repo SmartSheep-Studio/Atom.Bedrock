@@ -45,9 +45,9 @@ const router = createRouter({
     },
 
     {
-      path: "/launch/:id",
-      name: "framework.sub-app",
-      component: () => import("@/views/framework/sub-app.vue"),
+      path: "/svm/subapps/:id/:matchAll*",
+      name: "framework.subapp",
+      component: () => import("@/views/framework/subapp.vue"),
     },
   ],
 });

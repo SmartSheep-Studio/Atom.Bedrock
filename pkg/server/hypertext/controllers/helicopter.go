@@ -34,7 +34,7 @@ func (v *HeLiCoPtErController) subappRewrite(c *fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusBadGateway, "the app isn't exposed")
 		} else {
 			prefix := fmt.Sprintf("/srv/subapps/%s", c.Params("name"))
-			url := strings.ReplaceAll(string(c.Request().URI().Path()), prefix, "") + string(c.Request().URI().QueryString())
+			url := strings.ReplaceAll(string(c.Request().URI().Path()), prefix, "") + "?" + string(c.Request().URI().QueryString())
 
 			return proxy.Forward(app.ExposedOptions.URL + url)(c)
 		}

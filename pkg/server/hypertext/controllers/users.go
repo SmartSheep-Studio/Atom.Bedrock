@@ -97,17 +97,15 @@ func (v *UserController) info(c *fiber.Ctx) error {
 	m["permissions"], _ = user.GetPermissions()
 	m["notifications_count"] = notificationsCount
 
-	claims := c.Locals("principal-claims").(models.UserClaims)
-
 	return c.JSON(fiber.Map{
-		"sub":            claims.Subject,
+		"sub":            user.ID,
 		"name":           user.Name,
 		"nickname":       user.Nickname,
 		"profile":        fmt.Sprintf("%s/explore/users/%s", viper.GetString("general.base_url"), user.Name),
 		"email":          user.Contacts[0].Content,
 		"email_verified": user.Contacts[0].VerifiedAt != nil,
-		"claims":         c.Locals("principal-claims"),
-		"session":        c.Locals("principal-session"),
+		"session":        nil,
+		"claims":         nil,
 		"user":           m,
 	})
 }

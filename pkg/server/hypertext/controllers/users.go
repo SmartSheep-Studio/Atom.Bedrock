@@ -32,61 +32,64 @@ func NewUserController(db *gorm.DB, otp *services.OTPService, auth *services.Aut
 	return ctrl
 }
 
-func (ctrl *UserController) Map(router *fiber.App) {
+func (v *UserController) Map(router *fiber.App) {
+	router.Get(
+		"/cgi/users/:user",
+		v.info,
+	)
+
 	router.Get(
 		"/api/users/self",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:id"), hyperutils.GenPerms()),
-		ctrl.self,
+		v.gatekeeper.Fn(true, hyperutils.GenScope("read:id"), hyperutils.GenPerms()),
+		v.self,
 	)
 	router.Get(
 		"/api/users/self/notifications",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:notifications"), hyperutils.GenPerms()),
-		ctrl.selfNotifications,
+		v.gatekeeper.Fn(true, hyperutils.GenScope("read:notifications"), hyperutils.GenPerms()),
+		v.selfNotifications,
 	)
 	router.Get(
 		"/api/users/self/locks",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("read:locks"), hyperutils.GenPerms()),
-		ctrl.selfLocks,
+		v.gatekeeper.Fn(true, hyperutils.GenScope("read:locks"), hyperutils.GenPerms()),
+		v.selfLocks,
 	)
 
 	router.Get(
 		"/api/users/self/verify",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("verify:id"), hyperutils.GenPerms()),
-		ctrl.verify,
+		v.gatekeeper.Fn(true, hyperutils.GenScope("verify:id"), hyperutils.GenPerms()),
+		v.verify,
 	)
 
 	router.Put(
 		"/api/users/self",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("update:id"), hyperutils.GenPerms()),
-		ctrl.update,
+		v.gatekeeper.Fn(true, hyperutils.GenScope("update:id"), hyperutils.GenPerms()),
+		v.update,
 	)
 	router.Put(
 		"/api/users/self/contacts",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("update:id.contacts"), hyperutils.GenPerms()),
-		ctrl.updateContacts,
+		v.gatekeeper.Fn(true, hyperutils.GenScope("update:id.contacts"), hyperutils.GenPerms()),
+		v.updateContacts,
 	)
 	router.Put(
 		"/api/users/self/password",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("update:id.password"), hyperutils.GenPerms()),
-		ctrl.updatePassword,
+		v.gatekeeper.Fn(true, hyperutils.GenScope("update:id.password"), hyperutils.GenPerms()),
+		v.updatePassword,
 	)
 	router.Put(
 		"/api/users/self/personalize",
-		ctrl.gatekeeper.Fn(true, hyperutils.GenScope("update:id.personalize"), hyperutils.GenPerms("personalize")),
-		ctrl.personalize,
+		v.gatekeeper.Fn(true, hyperutils.GenScope("update:id.personalize"), hyperutils.GenPerms("personalize")),
+		v.personalize,
 	)
 }
 
-func (ctrl *UserController) self(c *fiber.Ctx) error {
-	u := c.Locals("principal").(models.User)
-
+func (v *UserController) info(c *fiber.Ctx) error {
 	var user models.User
-	if err := ctrl.db.Where("id = ?", u.ID).Preload("Contacts").Preload("Groups").First(&user).Error; err != nil {
+	if err := v.db.Where("id = ?", c.Params("user", "0")).Preload("Contacts").Preload("Groups").First(&user).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	}
 
 	var notificationsCount int64
-	if err := ctrl.db.Model(&models.Notification{}).Where("recipient_id = ? AND read_at IS NULL", user.ID).Count(&notificationsCount).Error; err != nil {
+	if err := v.db.Model(&models.Notification{}).Where("recipient_id = ? AND read_at IS NULL", user.ID).Count(&notificationsCount).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	}
 
@@ -109,10 +112,42 @@ func (ctrl *UserController) self(c *fiber.Ctx) error {
 	})
 }
 
-func (ctrl *UserController) selfNotifications(c *fiber.Ctx) error {
+func (v *UserController) self(c *fiber.Ctx) error {
 	u := c.Locals("principal").(models.User)
 
-	tx := ctrl.db.Where("recipient_id = ?", u.ID)
+	var user models.User
+	if err := v.db.Where("id = ?", u.ID).Preload("Contacts").Preload("Groups").First(&user).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	}
+
+	var notificationsCount int64
+	if err := v.db.Model(&models.Notification{}).Where("recipient_id = ? AND read_at IS NULL", user.ID).Count(&notificationsCount).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	}
+
+	m := hyperutils.CovertStructToMap(user)
+	m["permissions"], _ = user.GetPermissions()
+	m["notifications_count"] = notificationsCount
+
+	claims := c.Locals("principal-claims").(models.UserClaims)
+
+	return c.JSON(fiber.Map{
+		"sub":            claims.Subject,
+		"name":           user.Name,
+		"nickname":       user.Nickname,
+		"profile":        fmt.Sprintf("%s/explore/users/%s", viper.GetString("general.base_url"), user.Name),
+		"email":          user.Contacts[0].Content,
+		"email_verified": user.Contacts[0].VerifiedAt != nil,
+		"claims":         c.Locals("principal-claims"),
+		"session":        c.Locals("principal-session"),
+		"user":           m,
+	})
+}
+
+func (v *UserController) selfNotifications(c *fiber.Ctx) error {
+	u := c.Locals("principal").(models.User)
+
+	tx := v.db.Where("recipient_id = ?", u.ID)
 	if c.Query("only_unread", "yes") == "yes" {
 		tx.Where("read_at IS NULL")
 	}
@@ -122,7 +157,7 @@ func (ctrl *UserController) selfNotifications(c *fiber.Ctx) error {
 		return hyperutils.ErrorParser(err)
 	} else {
 		if c.Query("update_state", "yes") == "yes" {
-			ctrl.db.Model(models.Notification{}).Where("recipient_id = ? AND read_at IS NULL", u.ID).Updates(models.Notification{
+			v.db.Model(models.Notification{}).Where("recipient_id = ? AND read_at IS NULL", u.ID).Updates(models.Notification{
 				ReadAt: lo.ToPtr(time.Now()),
 			})
 		}
@@ -131,10 +166,10 @@ func (ctrl *UserController) selfNotifications(c *fiber.Ctx) error {
 	}
 }
 
-func (ctrl *UserController) selfLocks(c *fiber.Ctx) error {
+func (v *UserController) selfLocks(c *fiber.Ctx) error {
 	u := c.Locals("principal").(models.User)
 
-	tx := ctrl.db.Where("user_id = ?", u.ID)
+	tx := v.db.Where("user_id = ?", u.ID)
 
 	var locks []models.Lock
 	if err := tx.Find(&locks).Error; err != nil {
@@ -144,17 +179,17 @@ func (ctrl *UserController) selfLocks(c *fiber.Ctx) error {
 	}
 }
 
-func (ctrl *UserController) verify(c *fiber.Ctx) error {
+func (v *UserController) verify(c *fiber.Ctx) error {
 	u := c.Locals("principal").(models.User)
 
 	code := c.Query("code")
 	if len(code) > 0 {
-		otp, err := ctrl.otp.LookupOTP(u, c.Query("code"))
+		otp, err := v.otp.LookupOTP(u, c.Query("code"))
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
-		if err := ctrl.otp.ApplyOTP(otp); err != nil {
+		if err := v.otp.ApplyOTP(otp); err != nil {
 			return hyperutils.ErrorParser(err)
 		} else {
 			return c.SendString("Successfully verified your account and contact!")
@@ -167,28 +202,28 @@ func (ctrl *UserController) verify(c *fiber.Ctx) error {
 	}
 
 	var contact models.UserContact
-	if err := ctrl.db.Where("id = ? AND user_id = ?", id, u.ID).First(&contact).Error; err != nil {
+	if err := v.db.Where("id = ? AND user_id = ?", id, u.ID).First(&contact).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	} else if contact.VerifiedAt != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "You need provide a unverified contact id.")
 	}
 
 	exp, _ := time.ParseDuration("30m")
-	otp, err := ctrl.otp.NewOTP(u, models.OneTimeVerifyContactCode, models.OTPPayload{
+	otp, err := v.otp.NewOTP(u, models.OneTimeVerifyContactCode, models.OTPPayload{
 		Target:    strconv.Itoa(int(contact.ID)),
 		IpAddress: c.IP(),
 	}, &exp)
 	if err != nil {
 		return fiber.NewError(fiber.StatusForbidden, err.Error())
 	} else {
-		if err := ctrl.otp.SendMail(otp); err != nil {
+		if err := v.otp.SendMail(otp); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		return c.SendString("Verify email has been sent.")
 	}
 }
 
-func (ctrl *UserController) update(c *fiber.Ctx) error {
+func (v *UserController) update(c *fiber.Ctx) error {
 	var req struct {
 		Name        string `json:"name" validate:"required"`
 		Nickname    string `json:"nickname" validate:"required"`
@@ -204,14 +239,14 @@ func (ctrl *UserController) update(c *fiber.Ctx) error {
 	user.Nickname = req.Nickname
 	user.Description = req.Description
 
-	if err := ctrl.db.Save(&user).Error; err != nil {
+	if err := v.db.Save(&user).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	} else {
 		return c.JSON(user)
 	}
 }
 
-func (ctrl *UserController) updateContacts(c *fiber.Ctx) error {
+func (v *UserController) updateContacts(c *fiber.Ctx) error {
 	u := c.Locals("principal").(models.User)
 
 	var req struct {
@@ -226,7 +261,7 @@ func (ctrl *UserController) updateContacts(c *fiber.Ctx) error {
 		return err
 	}
 
-	tx := ctrl.db.Begin()
+	tx := v.db.Begin()
 
 	if err := tx.Unscoped().Delete(&u.Contacts).Error; err != nil {
 		tx.Rollback()
@@ -264,7 +299,7 @@ func (ctrl *UserController) updateContacts(c *fiber.Ctx) error {
 	}
 }
 
-func (ctrl *UserController) updatePassword(c *fiber.Ctx) error {
+func (v *UserController) updatePassword(c *fiber.Ctx) error {
 	u := c.Locals("principal").(models.User)
 
 	var req struct {
@@ -277,7 +312,7 @@ func (ctrl *UserController) updatePassword(c *fiber.Ctx) error {
 	}
 
 	var encrypted []byte
-	if _, err := ctrl.auth.AuthUser(u.Name, req.OldPassword); err != nil {
+	if _, err := v.auth.AuthUser(u.Name, req.OldPassword); err != nil {
 		return fiber.NewError(fiber.StatusForbidden, "invalid old password")
 	} else if encrypted, err = bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("failed to process your password: %s", err.Error()))
@@ -285,14 +320,14 @@ func (ctrl *UserController) updatePassword(c *fiber.Ctx) error {
 
 	u.Password = string(encrypted)
 
-	if err := ctrl.db.Save(&u).Error; err != nil {
+	if err := v.db.Save(&u).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	} else {
 		return c.JSON(u)
 	}
 }
 
-func (ctrl *UserController) personalize(c *fiber.Ctx) error {
+func (v *UserController) personalize(c *fiber.Ctx) error {
 	u := c.Locals("principal").(models.User)
 
 	field := c.Query("field", "none")
@@ -306,14 +341,14 @@ func (ctrl *UserController) personalize(c *fiber.Ctx) error {
 		}
 
 		// Clean up old avatars
-		ctrl.db.Delete(&models.StorageFile{UserID: &u.ID, Type: models.StorageFileAvatarType})
+		v.db.Delete(&models.StorageFile{UserID: &u.ID, Type: models.StorageFileAvatarType})
 
-		if f, err := ctrl.warehouse.SaveFile2User(c, avatar, u, models.StorageFileAvatarType); err != nil {
+		if f, err := v.warehouse.SaveFile2User(c, avatar, u, models.StorageFileAvatarType); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		} else {
 			// Update url
 			u.AvatarUrl = f.GetURL()
-			ctrl.db.Save(&u)
+			v.db.Save(&u)
 
 			return c.SendStatus(fiber.StatusOK)
 		}
@@ -326,14 +361,14 @@ func (ctrl *UserController) personalize(c *fiber.Ctx) error {
 		}
 
 		// Clean up old banners
-		ctrl.db.Delete(&models.StorageFile{UserID: &u.ID, Type: models.StorageFileBannerType})
+		v.db.Delete(&models.StorageFile{UserID: &u.ID, Type: models.StorageFileBannerType})
 
-		if f, err := ctrl.warehouse.SaveFile2User(c, banner, u, models.StorageFileBannerType); err != nil {
+		if f, err := v.warehouse.SaveFile2User(c, banner, u, models.StorageFileBannerType); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		} else {
 			// Update url
 			u.BannerUrl = f.GetURL()
-			ctrl.db.Save(&u)
+			v.db.Save(&u)
 
 			return c.SendStatus(fiber.StatusOK)
 		}

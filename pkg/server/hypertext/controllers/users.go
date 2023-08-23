@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	models "code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
-	hyperutils "code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
-	services "code.smartsheep.studio/atom/bedrock/pkg/server/services"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
 
@@ -118,14 +118,14 @@ func (v *UserController) self(c *fiber.Ctx) error {
 		return hyperutils.ErrorParser(err)
 	}
 
-	var notificationsCount int64
-	if err := v.db.Model(&models.Notification{}).Where("recipient_id = ? AND read_at IS NULL", user.ID).Count(&notificationsCount).Error; err != nil {
+	var notificationCount int64
+	if err := v.db.Model(&models.Notification{}).Where("recipient_id = ? AND read_at IS NULL", user.ID).Count(&notificationCount).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	}
 
 	m := hyperutils.CovertStructToMap(user)
 	m["permissions"], _ = user.GetPermissions()
-	m["notifications_count"] = notificationsCount
+	m["notification_count"] = notificationCount
 
 	claims := c.Locals("principal-claims").(models.UserClaims)
 

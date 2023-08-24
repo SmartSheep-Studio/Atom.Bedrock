@@ -31,7 +31,7 @@ function updateState() {
     isUnderShadow: true,
     layout: {
       isDisplayHeader: true,
-      contentHeight: "calc(100vh - 72px)"
+      contentHeight: "100vh"
     }
   };
 }

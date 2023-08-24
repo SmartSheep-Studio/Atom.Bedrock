@@ -19,7 +19,7 @@
               <div class="flex flex-col h-[100vh]">
                 <div
                   :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                  class="nav-item pt-[6px] h-[42px] flex gap-2 items-center cursor-pointer"
+                  class="nav-item pt-[8px] h-[42px] flex gap-2 items-center cursor-pointer"
                   @click="$router.push({ name: 'landing' })"
                 >
                   <img src="./assets/icon.png" alt="logo" class="block brand-item-icon" />
@@ -158,12 +158,14 @@ const menuOptions: Ref<MenuOption[]> = computed(() => {
       return [];
     }
 
-    return list.filter((v) => {
+    return list?.filter((v) => {
       const page = $endpoint.pages.filter((i) => {
         return i.name === v.name;
       })[0];
 
-      if (page == null) {
+      if (v.children != null && v.children.length > 0) {
+        return true;
+      } else if (page == null) {
         return false;
       }
 
@@ -178,19 +180,28 @@ const menuOptions: Ref<MenuOption[]> = computed(() => {
       }
 
       return true;
-    }).map((v) => {
+    })?.map((v) => {
+      const page = $endpoint.pages.filter((i) => {
+        return i.name === v.name;
+      })[0];
+
       return {
-        label: () =>
-          h(
-            RouterLink,
-            {
-              to: {
-                name: "framework.subapp",
-                params: { id: v.name }
-              }
-            },
-            { default: () => v.title }
-          ),
+        label: (
+          page?.to == null
+            ? () =>
+              h("span", v.title)
+            : () =>
+              h(
+                RouterLink,
+                {
+                  to: {
+                    name: "framework.subapp",
+                    params: { id: v.name }
+                  }
+                },
+                { default: () => v.title }
+              )
+        ),
         icon: () =>
           h(NIcon,
             null,
@@ -201,7 +212,7 @@ const menuOptions: Ref<MenuOption[]> = computed(() => {
         children: v.children ? build(v.children) : undefined,
         key: v.name
       };
-    });
+    }) ?? [];
   };
 
   items.push(...build($endpoint.nav));

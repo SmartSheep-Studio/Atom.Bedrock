@@ -2,7 +2,7 @@
   <wujie-vue
     sync
     id="subapp-container"
-    height="calc(100vh - 72px)"
+    height="100vh"
     width="100%"
     name="q"
     :url="page.to"

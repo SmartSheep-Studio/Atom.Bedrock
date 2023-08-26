@@ -4,47 +4,31 @@
       <n-message-provider>
         <div class="w-full h-screen relative">
           <n-layout position="absolute" :has-sider="menuMode === 'width'">
-            <n-layout-sider
-              :collapse-mode="menuMode"
-              :collapsed-width="menuMode === 'transform' ? 0 : 64"
-              :show-trigger="menuMode === 'transform' ? 'bar' : 'arrow-circle'"
-              :width="280"
-              :collapsed="menuCollapsed"
-              :native-scrollbar="false"
-              :class="menuMode === 'transform' ? 'fixed z-100 shadow-xl' : undefined"
-              bordered
-              @collapse="menuCollapsed = true"
-              @expand="menuCollapsed = false"
-            >
+            <n-layout-sider :collapse-mode="menuMode" :collapsed-width="menuMode === 'transform' ? 0 : 64"
+              :show-trigger="menuMode === 'transform' ? 'bar' : 'arrow-circle'" :width="280" :collapsed="menuCollapsed"
+              :native-scrollbar="false" :class="menuMode === 'transform' ? 'fixed z-100 shadow-xl' : undefined" bordered
+              @collapse="menuCollapsed = true" @expand="menuCollapsed = false">
+
               <div class="flex flex-col h-[100vh]">
-                <div
-                  :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
+                <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
                   class="nav-item pt-[8px] h-[42px] flex gap-2 items-center cursor-pointer"
-                  @click="$router.push({ name: 'landing' })"
-                >
-                  <img src="./assets/icon.png" alt="logo" class="block brand-item-icon" />
+                  @click="$router.push({ name: 'landing' })">
+
+                  <img src="./assets/icon.png" alt="Logo" class="block brand-item-icon" />
 
                   <div v-if="!menuCollapsed">Atom</div>
+
                 </div>
 
-                <n-menu
-                  mode="vertical"
-                  :collapsed="menuCollapsed"
-                  :collapsed-width="64"
-                  :collapsed-icon-size="22"
-                  :options="menuOptions"
-                  v-model:value="menuKey"
-                />
+                <n-menu mode="vertical" :collapsed="menuCollapsed" :collapsed-width="64" :collapsed-icon-size="22"
+                  :options="menuOptions" v-model:value="menuKey" />
 
                 <div class="grow"></div>
 
-                <div
-                  :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                  class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center"
-                  v-if="!$principal.isSigned"
-                >
+                <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
+                  class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center" v-if="!$principal.isSigned">
                   <n-dropdown placement="right-end" show-arrow :options="unsignedDropdownOptions"
-                              @select="dropdownHandler">
+                    @select="dropdownHandler">
                     <n-avatar size="medium" color="transparent">
                       <n-icon color="black" :component="SupervisorAccountRound" />
                     </n-avatar>
@@ -56,19 +40,13 @@
                   </div>
                 </div>
 
-                <div
-                  :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                  class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center"
-                  v-else
-                >
+                <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
+                  class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center" v-else>
                   <div class="flex gap-3">
                     <n-dropdown placement="right-end" show-arrow :options="signedDropdownOptions"
-                                @select="dropdownHandler">
-                      <n-avatar
-                        size="medium"
-                        color="transparent"
-                        :src="usePlaceholder('avatar', $principal.account?.avatar_url)"
-                      ></n-avatar>
+                      @select="dropdownHandler">
+                      <n-avatar size="medium" color="transparent"
+                        :src="usePlaceholder('avatar', $principal.account?.avatar_url)"></n-avatar>
                     </n-dropdown>
 
                     <div v-if="!menuCollapsed">
@@ -78,6 +56,7 @@
                   </div>
                 </div>
               </div>
+
             </n-layout-sider>
 
             <n-layout class="w-full h-full" :native-scrollbar="false">
@@ -259,7 +238,9 @@ function dropdownHandler(key: string) {
   width: 520px;
 }
 
-.nav-item, .nav-item-icon, .brand-item-icon {
+.nav-item,
+.nav-item-icon,
+.brand-item-icon {
   @apply transition-all ease-in-out delay-[.05s]
 }
 

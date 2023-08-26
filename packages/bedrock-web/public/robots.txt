@@ -1,0 +1,5 @@
+User-agent: Googlebot
+Disallow: /svm
+
+User-agent: *
+Allow: /

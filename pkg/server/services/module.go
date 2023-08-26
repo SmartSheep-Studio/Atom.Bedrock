@@ -11,8 +11,13 @@ func Module() fx.Option {
 		fx.Provide(NewUserService),
 		fx.Provide(NewAuthService),
 		fx.Provide(NewStorageService),
-		fx.Provide(NewCornService),
+		fx.Provide(NewCronService),
 		fx.Provide(NewMailerService),
 		fx.Provide(NewOTPService),
+
+		fx.Invoke(func(cron *CronService) {
+			// Cleanup at the startup
+			cron.CleanDatabase()
+		}),
 	)
 }

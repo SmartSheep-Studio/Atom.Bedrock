@@ -6,8 +6,12 @@ import (
 	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 
 	"context"
+	"strings"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
@@ -18,8 +22,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
-	"strings"
-	"time"
 
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
@@ -41,16 +43,23 @@ func NewHttpServer(cycle fx.Lifecycle, conf *viper.Viper, metrics *services.Metr
 		BodyLimit:             viper.GetInt("hypertext.max_body_size"),
 	})
 
+	// Apply optional middlewares
+	if conf.GetBool("hypertext.advanced.compress") {
+		server.Use(compress.New())
+	}
+	if conf.GetInt("hypertext.max_request_count") > 0 {
+		server.Use(limiter.New(limiter.Config{
+			Max:               conf.GetInt("hypertext.max_request_count"),
+			Expiration:        30 * time.Second,
+			LimiterMiddleware: limiter.SlidingWindow{},
+		}))
+	}
+
 	// Apply global middlewares
 	server.Use(recover.New())
 	server.Use(idempotency.New())
 	server.Use(requestid.New())
 	server.Use(etag.New())
-	server.Use(limiter.New(limiter.Config{
-		Max:               conf.GetInt("hypertext.max_request_count"),
-		Expiration:        30 * time.Second,
-		LimiterMiddleware: limiter.SlidingWindow{},
-	}))
 	server.Use(flog.New(flog.Config{
 		Format: "${status} | ${latency} | ${method} ${path}\n",
 		Output: log.Logger,

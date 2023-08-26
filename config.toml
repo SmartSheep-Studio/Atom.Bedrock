@@ -34,6 +34,7 @@ max_body_size = 125829120
 max_request_count = 120
 [hypertext.advanced]
 prefork = false
+compress = true
 
 [datasource]
 [datasource.master]
@@ -89,4 +90,3 @@ executable = "./CodingLand.exe"
 arguments = ["serve"]
 environment = []
 order = 10
-

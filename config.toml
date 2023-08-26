@@ -55,9 +55,7 @@ icon = "mdi-store"
 name = "developers"
 title = "Developers"
 icon = "mdi-code-tags"
-children = [
-    { name = "stackcloud", title = "Stackcloud", icon = "mdi-cloud" }
-]
+children = [{ name = "stackcloud", title = "Stackcloud", icon = "mdi-cloud" }]
 
 [[helicopter.subapps]]
 name = "matrix"
@@ -83,3 +81,12 @@ executable = "./Quaso.exe"
 arguments = ["serve"]
 environment = []
 order = 10
+[[helicopter.subapps]]
+name = "codingland"
+display = "CodingLand"
+workdir = "./dist/subapps/codingland"
+executable = "./CodingLand.exe"
+arguments = ["serve"]
+environment = []
+order = 10
+

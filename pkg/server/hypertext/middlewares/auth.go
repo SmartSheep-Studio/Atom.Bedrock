@@ -75,6 +75,10 @@ func (v *AuthMiddleware) LookupAuthToken(c *fiber.Ctx, args []string) error {
 		v := strings.TrimSpace(parts[1])
 
 		switch k {
+		case "cookie":
+			if len(c.Cookies(v)) > 0 {
+				str = c.Cookies(v)
+			}
 		case "header":
 			if len(c.GetReqHeaders()[v]) > 0 {
 				str = strings.TrimSpace(strings.ReplaceAll(c.GetReqHeaders()[v], "Bearer", ""))
@@ -82,10 +86,6 @@ func (v *AuthMiddleware) LookupAuthToken(c *fiber.Ctx, args []string) error {
 		case "query":
 			if len(c.Query(v)) > 0 {
 				str = c.Query(v)
-			}
-		case "cookie":
-			if len(c.Cookies(v)) > 0 {
-				str = c.Cookies(v)
 			}
 		}
 	}

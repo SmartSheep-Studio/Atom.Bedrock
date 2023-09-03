@@ -5,14 +5,16 @@
         <div class="w-full h-screen relative">
           <n-layout position="absolute" :has-sider="menuMode === 'width'">
             <n-layout-sider :collapse-mode="menuMode" :collapsed-width="menuMode === 'transform' ? 0 : 64"
-              :show-trigger="menuMode === 'transform' ? 'bar' : 'arrow-circle'" :width="280" :collapsed="menuCollapsed"
-              :native-scrollbar="false" :class="menuMode === 'transform' ? 'fixed z-100 shadow-xl' : undefined" bordered
-              @collapse="menuCollapsed = true" @expand="menuCollapsed = false">
+                            :show-trigger="menuMode === 'transform' ? 'bar' : 'arrow-circle'" :width="280"
+                            :collapsed="menuCollapsed"
+                            :native-scrollbar="false"
+                            :class="menuMode === 'transform' ? 'fixed z-100 shadow-xl' : undefined" bordered
+                            @collapse="menuCollapsed = true" @expand="menuCollapsed = false">
 
               <div class="flex flex-col h-[100vh]">
                 <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                  class="nav-item pt-[8px] h-[42px] flex gap-2 items-center cursor-pointer"
-                  @click="$router.push({ name: 'landing' })">
+                     class="nav-item pt-[8px] h-[42px] flex gap-2 items-center cursor-pointer"
+                     @click="$router.push({ name: 'landing' })">
 
                   <img src="./assets/icon.png" alt="Logo" class="block brand-item-icon" />
 
@@ -21,14 +23,14 @@
                 </div>
 
                 <n-menu mode="vertical" :collapsed="menuCollapsed" :collapsed-width="64" :collapsed-icon-size="22"
-                  :options="menuOptions" v-model:value="menuKey" />
+                        :options="menuOptions" v-model:value="menuKey" />
 
                 <div class="grow"></div>
 
                 <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                  class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center" v-if="!$principal.isSigned">
+                     class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center" v-if="!$principal.isSigned">
                   <n-dropdown placement="right-end" show-arrow :options="unsignedDropdownOptions"
-                    @select="dropdownHandler">
+                              @select="dropdownHandler">
                     <n-avatar size="medium" color="transparent">
                       <n-icon color="black" :component="SupervisorAccountRound" />
                     </n-avatar>
@@ -41,12 +43,12 @@
                 </div>
 
                 <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                  class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center" v-else>
+                     class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center" v-else>
                   <div class="flex gap-3">
                     <n-dropdown placement="right-end" show-arrow :options="signedDropdownOptions"
-                      @select="dropdownHandler">
+                                @select="dropdownHandler">
                       <n-avatar size="medium" color="transparent"
-                        :src="usePlaceholder('avatar', $principal.account?.avatar_url)"></n-avatar>
+                                :src="usePlaceholder('avatar', $principal.account?.avatar_url)"></n-avatar>
                     </n-dropdown>
 
                     <div v-if="!menuCollapsed">
@@ -92,6 +94,7 @@ import {
 } from "@vicons/material";
 import { hasUserPermissions } from "@/utils/gatekeeper";
 import { useI18n } from "vue-i18n";
+import { useLocalStorage } from "@vueuse/core";
 
 const { t } = useI18n();
 
@@ -113,7 +116,7 @@ const themeOverrides = {
   }
 };
 
-const menuCollapsed = ref(false);
+const menuCollapsed = useLocalStorage("layout-nav-collapsed", false);
 const menuKey = ref($route.name);
 const menuMode = ref(window.innerWidth >= 768 ? "width" : "transform");
 const menuOptions: Ref<MenuOption[]> = computed(() => {

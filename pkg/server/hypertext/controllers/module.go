@@ -18,13 +18,15 @@ func Module() fx.Option {
 		fx.Provide(
 			AsController(NewWellKnownController),
 			AsController(NewHeLiCoPtErController),
+			AsController(NewMetricsController),
 			AsController(NewStatusController),
 			AsController(NewAuthController),
+			AsController(NewOauthController),
 			AsController(NewApiTokenController),
 			AsController(NewUserController),
 			AsController(NewOpenIDController),
 			AsController(NewStorageController),
-			AsController(NewOauthController),
+			AsController(NewNotificationController),
 		),
 	)
 }

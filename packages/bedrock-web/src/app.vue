@@ -4,33 +4,51 @@
       <n-message-provider>
         <div class="w-full h-screen relative">
           <n-layout position="absolute" :has-sider="menuMode === 'width'">
-            <n-layout-sider :collapse-mode="menuMode" :collapsed-width="menuMode === 'transform' ? 0 : 64"
-                            :show-trigger="menuMode === 'transform' ? 'bar' : 'arrow-circle'" :width="280"
-                            :collapsed="menuCollapsed"
-                            :native-scrollbar="false"
-                            :class="menuMode === 'transform' ? 'fixed z-100 shadow-xl' : undefined" bordered
-                            @collapse="menuCollapsed = true" @expand="menuCollapsed = false">
-
+            <n-layout-sider
+              :collapse-mode="menuMode"
+              :collapsed-width="menuMode === 'transform' ? 0 : 64"
+              :show-trigger="menuMode === 'transform' ? 'bar' : 'arrow-circle'"
+              :width="280"
+              :collapsed="menuCollapsed"
+              :native-scrollbar="false"
+              :class="menuMode === 'transform' ? 'fixed z-100 shadow-xl' : undefined"
+              bordered
+              @collapse="menuCollapsed = true"
+              @expand="menuCollapsed = false"
+            >
               <div class="flex flex-col h-[100vh]">
-                <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                     class="nav-item pt-[8px] h-[42px] flex gap-2 items-center cursor-pointer"
-                     @click="$router.push({ name: 'landing' })">
-
+                <div
+                  :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
+                  class="nav-item pt-[8px] h-[42px] flex gap-2 items-center cursor-pointer"
+                  @click="$router.push({ name: 'landing' })"
+                >
                   <img src="./assets/icon.png" alt="Logo" class="block brand-item-icon" />
 
                   <div v-if="!menuCollapsed">Atom</div>
-
                 </div>
 
-                <n-menu mode="vertical" :collapsed="menuCollapsed" :collapsed-width="64" :collapsed-icon-size="22"
-                        :options="menuOptions" v-model:value="menuKey" />
+                <n-menu
+                  mode="vertical"
+                  :collapsed="menuCollapsed"
+                  :collapsed-width="64"
+                  :collapsed-icon-size="22"
+                  :options="menuOptions"
+                  v-model:value="menuKey"
+                />
 
                 <div class="grow"></div>
 
-                <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                     class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center" v-if="!$principal.isSigned">
-                  <n-dropdown placement="right-end" show-arrow :options="unsignedDropdownOptions"
-                              @select="dropdownHandler">
+                <div
+                  :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
+                  class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center"
+                  v-if="!$principal.isSigned"
+                >
+                  <n-dropdown
+                    placement="right-end"
+                    show-arrow
+                    :options="unsignedDropdownOptions"
+                    @select="dropdownHandler"
+                  >
                     <n-avatar size="medium" color="transparent">
                       <n-icon color="black" :component="SupervisorAccountRound" />
                     </n-avatar>
@@ -42,13 +60,23 @@
                   </div>
                 </div>
 
-                <div :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
-                     class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center" v-else>
+                <div
+                  :class="menuCollapsed ? 'nav-item-collapsed' : 'nav-item-expand'"
+                  class="nav-item ml-[-2px] pb-[8px] h-[42px] flex gap-2 items-center"
+                  v-else
+                >
                   <div class="flex gap-3">
-                    <n-dropdown placement="right-end" show-arrow :options="signedDropdownOptions"
-                                @select="dropdownHandler">
-                      <n-avatar size="medium" color="transparent"
-                                :src="usePlaceholder('avatar', $principal.account?.avatar_url)"></n-avatar>
+                    <n-dropdown
+                      placement="right-end"
+                      show-arrow
+                      :options="signedDropdownOptions"
+                      @select="dropdownHandler"
+                    >
+                      <n-avatar
+                        size="medium"
+                        color="transparent"
+                        :src="usePlaceholder('avatar', $principal.account?.avatar_url)"
+                      ></n-avatar>
                     </n-dropdown>
 
                     <div v-if="!menuCollapsed">
@@ -58,7 +86,6 @@
                   </div>
                 </div>
               </div>
-
             </n-layout-sider>
 
             <n-layout class="w-full h-full" :native-scrollbar="false">
@@ -90,7 +117,7 @@ import {
   LogInRound,
   LogOutRound,
   NewLabelRound,
-  SupervisorAccountRound
+  SupervisorAccountRound,
 } from "@vicons/material";
 import { hasUserPermissions } from "@/utils/gatekeeper";
 import { useI18n } from "vue-i18n";
@@ -112,8 +139,8 @@ const themeOverrides = {
     primaryColor: "#ca4d4dFF",
     primaryColorHover: "#DF5656FF",
     primaryColorPressed: "#C04747FF",
-    primaryColorSuppl: "#A84141FF"
-  }
+    primaryColorSuppl: "#A84141FF",
+  },
 };
 
 const menuCollapsed = useLocalStorage("layout-nav-collapsed", false);
@@ -122,17 +149,14 @@ const menuMode = ref(window.innerWidth >= 768 ? "width" : "transform");
 const menuOptions: Ref<MenuOption[]> = computed(() => {
   const items: MenuOption[] = [
     {
-      label: () =>
-        h(RouterLink, { to: { name: "landing" } }, { default: () => "Landing" }),
+      label: () => h(RouterLink, { to: { name: "administration" } }, { default: () => "Administration" }),
       icon: () =>
-        h(NIcon,
-          null,
-          {
-            default: () => h("span", { class: `mdi mdi-earth` }, null)
-          }
-        ),
-      key: "landing"
-    }
+        h(NIcon, null, {
+          default: () => h("span", { class: `mdi mdi-wrench` }, null),
+        }),
+      key: "administration",
+      show: hasUserPermissions("bedrock.admin.view")
+    },
   ];
 
   const build = (list: any[]): any[] => {
@@ -140,61 +164,63 @@ const menuOptions: Ref<MenuOption[]> = computed(() => {
       return [];
     }
 
-    return list?.filter((v) => {
-      const page = $endpoint.pages.filter((i) => {
-        return i.name === v.name;
-      })[0];
+    return (
+      list
+        ?.filter((v) => {
+          const page = $endpoint.pages?.filter((i) => {
+            return i.name === v.name;
+          })[0];
 
-      if (v.children != null && v.children.length > 0) {
-        return true;
-      } else if (page == null) {
-        return false;
-      }
-
-      if (page.meta != null) {
-        if (page.meta.gatekeeper != null) {
-          if (page.meta.gatekeeper?.must === true && !$principal.isSigned) {
-            return false;
-          } else if (page.meta.gatekeeper?.permissions != null && !hasUserPermissions(...page.meta.gatekeeper?.permissions)) {
+          if (v.children != null && v.children.length > 0) {
+            return true;
+          } else if (page == null) {
             return false;
           }
-        }
-      }
 
-      return true;
-    })?.map((v) => {
-      const page = $endpoint.pages.filter((i) => {
-        return i.name === v.name;
-      })[0];
-
-      return {
-        label: (
-          page?.to == null
-            ? () =>
-              h("span", v.title)
-            : () =>
-              h(
-                RouterLink,
-                {
-                  to: {
-                    name: "framework.subapp",
-                    params: { id: v.name }
-                  }
-                },
-                { default: () => v.title }
-              )
-        ),
-        icon: () =>
-          h(NIcon,
-            null,
-            {
-              default: () => h("span", { class: `mdi ${v.icon}` }, null)
+          if (page.meta != null) {
+            if (page.meta.gatekeeper != null) {
+              if (page.meta.gatekeeper?.must === true && !$principal.isSigned) {
+                return false;
+              } else if (
+                page.meta.gatekeeper?.permissions != null &&
+                !hasUserPermissions(...page.meta.gatekeeper?.permissions)
+              ) {
+                return false;
+              }
             }
-          ),
-        children: v.children ? build(v.children) : undefined,
-        key: v.name
-      };
-    }) ?? [];
+          }
+
+          return true;
+        })
+        ?.map((v) => {
+          const page = $endpoint.pages?.filter((i) => {
+            return i.name === v.name;
+          })[0];
+
+          return {
+            label:
+              page?.to == null
+                ? () => h("span", v.title)
+                : () =>
+                    h(
+                      RouterLink,
+                      {
+                        to: {
+                          name: "framework.subapp",
+                          params: { id: v.name },
+                        },
+                      },
+                      { default: () => v.title }
+                    ),
+            icon: () =>
+              h(NIcon, null, {
+                default: () => h("span", { class: `mdi ${v.icon}` }, null),
+              }),
+            children: v.children ? build(v.children) : undefined,
+            key: v.name,
+          };
+        }) ?? []
+    );
   };
 
   items.push(...build($endpoint.nav));
@@ -214,13 +240,13 @@ watch($route, (v) => {
 
 const unsignedDropdownOptions: DropdownOption[] = [
   { label: t("actions.sign-in"), key: "auth.sign-in", icon: renderIcon(LogInRound) },
-  { label: t("actions.sign-up"), key: "auth.sign-up", icon: renderIcon(NewLabelRound) }
+  { label: t("actions.sign-up"), key: "auth.sign-up", icon: renderIcon(NewLabelRound) },
 ];
 
 const signedDropdownOptions: DropdownOption[] = [
   { label: t("nav.users.personal-center"), key: "users.personal-center", icon: renderIcon(AccountCircleRound) },
   { label: t("actions.sign-out"), key: "auth.sign-out", icon: renderIcon(LogOutRound) },
-  { label: "Notifications", key: "users.notifications", icon: renderIcon(EmailRound) }
+  { label: "Notifications", key: "users.notifications", icon: renderIcon(EmailRound) },
 ];
 
 function dropdownHandler(key: string) {
@@ -244,30 +270,30 @@ function dropdownHandler(key: string) {
 .nav-item,
 .nav-item-icon,
 .brand-item-icon {
-  @apply transition-all ease-in-out delay-[.05s]
+  @apply transition-all ease-in-out delay-[.05s];
 }
 
 .nav-item-collapsed {
-  @apply pl-[18px] pr-[18px]
+  @apply pl-[18px] pr-[18px];
 }
 
 .nav-item-expand {
-  @apply pl-[32px] pr-[18px]
+  @apply pl-[32px] pr-[18px];
 }
 
 .nav-item-collapsed .nav-item-icon {
-  @apply w-[28px] h-[28px]
+  @apply w-[28px] h-[28px];
 }
 
 .nav-item-expand .nav-item-icon {
-  @apply w-[22px] h-[22px]
+  @apply w-[22px] h-[22px];
 }
 
 .nav-item-collapsed .brand-item-icon {
-  @apply w-[28px] h-[28px]
+  @apply w-[28px] h-[28px];
 }
 
 .nav-item-expand .brand-item-icon {
-  @apply w-[24px] h-[24px]
+  @apply w-[24px] h-[24px];
 }
 </style>

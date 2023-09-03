@@ -12,12 +12,13 @@ import (
 )
 
 type UserService struct {
-	db   *gorm.DB
-	conf *viper.Viper
+	db            *gorm.DB
+	conf          *viper.Viper
+	notifications *NotificationService
 }
 
-func NewUserService(db *gorm.DB, conf *viper.Viper) *UserService {
-	return &UserService{db, conf}
+func NewUserService(db *gorm.DB, conf *viper.Viper, notifications *NotificationService) *UserService {
+	return &UserService{db, conf, notifications}
 }
 
 func (v *UserService) LookupUser(id string) (models.User, error) {
@@ -48,24 +49,28 @@ func (v *UserService) NewUser(item *models.User) error {
 	}
 
 	if item.VerifiedAt == nil {
-		item.Notifications = append(item.Notifications, models.Notification{
+		if err := v.notifications.SendNotification(&models.Notification{
 			Title:       "Account verification is required.",
 			Description: "Don't forgot verify your account!",
 			Content:     "Your account isn't verified now. Before you verify, some features are unavailable. Now go to account center and verify your account now!",
 			Level:       models.NotificationLevelWarning,
 			SenderType:  models.NotificationSenderTypeSystem,
 			SenderID:    nil,
-		})
+		}); err != nil {
+			return err
+		}
 	}
 
-	item.Notifications = append(item.Notifications, models.Notification{
+	if err := v.notifications.SendNotification(&models.Notification{
 		Title:       fmt.Sprintf("Welcome to %s", v.conf.GetString("general.name")),
 		Description: fmt.Sprintf("Thanks for you choosing %s.", v.conf.GetString("general.name")),
 		Content:     fmt.Sprintf("Thanks for you registration of %s. Now go to explore the whole platform!", v.conf.GetString("general.name")),
 		Level:       models.NotificationLevelInfo,
 		SenderType:  models.NotificationSenderTypeSystem,
 		SenderID:    nil,
-	})
+	}); err != nil {
+		return err
+	}
 
 	return v.db.Save(&item).Error
 }

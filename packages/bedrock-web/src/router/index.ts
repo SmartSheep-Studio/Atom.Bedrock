@@ -45,6 +45,21 @@ const router = createRouter({
     },
 
     {
+      path: "/administration",
+      name: "administration",
+      component: () => import("@/views/administration/layout.vue"),
+      meta: { gatekeeper: { must: true, permissions: ["bedrock.admin.view"] } },
+      children: [
+        {
+          path: "/administration",
+          name: "administration.dashboard",
+          component: () => import("@/views/administration/dashboard.vue"),
+          meta: { gatekeeper: { must: true, permissions: ["bedrock.admin.view"] } },
+        },
+      ]
+    },
+
+    {
       path: "/svm/subapps/:id/:matchAll*",
       name: "framework.subapp",
       component: () => import("@/views/framework/subapp.vue"),

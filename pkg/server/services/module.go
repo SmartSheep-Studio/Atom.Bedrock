@@ -10,6 +10,7 @@ func Module() fx.Option {
 		fx.Provide(NewHeLiCoPtErService),
 		fx.Provide(NewUserService),
 		fx.Provide(NewAuthService),
+		fx.Provide(NewNotificationService),
 		fx.Provide(NewStorageService),
 		fx.Provide(NewCronService),
 		fx.Provide(NewMailerService),

@@ -25,7 +25,7 @@ func (v *MetricsController) Map(router *fiber.App) {
 		"/api/metrics",
 		v.gatekeeper.Fn(
 			true,
-			hyperutils.GenScope("read:server.metrics"),
+			hyperutils.GenScope("read:metrics"),
 			hyperutils.GenPerms("admin.metrics.read"),
 		),
 		v.overview,

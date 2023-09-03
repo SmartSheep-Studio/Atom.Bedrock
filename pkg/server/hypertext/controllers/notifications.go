@@ -4,6 +4,7 @@ import (
 	"code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/hyperutils"
 	"code.smartsheep.studio/atom/bedrock/pkg/server/hypertext/middlewares"
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 	"gorm.io/datatypes"
@@ -13,10 +14,11 @@ import (
 type NotificationController struct {
 	db         *gorm.DB
 	gatekeeper *middlewares.AuthMiddleware
+	notifications *services.NotificationService
 }
 
-func NewNotificationController(db *gorm.DB, gatekeeper *middlewares.AuthMiddleware) *NotificationController {
-	return &NotificationController{db, gatekeeper}
+func NewNotificationController(db *gorm.DB, gatekeeper *middlewares.AuthMiddleware, notifications *services.NotificationService) *NotificationController {
+	return &NotificationController{db, gatekeeper, notifications}
 }
 
 func (v *NotificationController) Map(router *fiber.App) {
@@ -58,7 +60,7 @@ func (v *NotificationController) SendNotification(c *fiber.Ctx) error {
 		SenderID:    req.SenderID,
 	}
 	
-	if err := v.db.Save(&item).Error; err != nil {
+	if err := v.notifications.SendNotification(item).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	} else {
 		return c.JSON(item)

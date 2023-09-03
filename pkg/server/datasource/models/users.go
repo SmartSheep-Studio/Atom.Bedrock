@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/samber/lo"
 	"time"
 
 	"code.smartsheep.studio/atom/bedrock/pkg/kit/common"
@@ -31,6 +32,28 @@ type User struct {
 	Locks              []Lock                             `json:"locks"`
 	Permissions        datatypes.JSONType[map[string]any] `json:"permissions"`
 	VerifiedAt         *time.Time                         `json:"verified_at"`
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (v User) GetPrimaryContact() (UserContact, bool) {
+	if item, ok := lo.Find(v.Contacts, func(item UserContact) bool {
+		return item.IsPrimary == true
+	}); !ok {
+		return item, false
+	} else {
+		return item, false
+	}
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (v User) GetSecondaryContact() (UserContact, bool) {
+	if item, ok := lo.Find(v.Contacts, func(item UserContact) bool {
+		return item.IsSecondary == true
+	}); !ok {
+		return item, false
+	} else {
+		return item, false
+	}
 }
 
 //goland:noinspection GoMixedReceiverTypes

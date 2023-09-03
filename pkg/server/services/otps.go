@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/samber/lo"
+	"github.com/spf13/viper"
 	"strconv"
 	"strings"
 	"time"
@@ -123,7 +124,10 @@ func (v *OTPService) SendMail(otp models.OTP) error {
 		} else if contact.Type != models.UserContactTypeEmail {
 			return fmt.Errorf("couldn't send mail to verify contact type isn't email")
 		}
-		return v.mailer.SendMail(contact.Content, "[Atom ID] Verify your email", fmt.Sprintf(`Hello, %s!
+		return v.mailer.SendMail(
+			contact.Content,
+			fmt.Sprintf("⌈%s · ID⌋ Verify your email", viper.GetString("general.name")),
+			fmt.Sprintf(`Hello, %s!
 You have just initiated a verification email request in the Atom user center, here is your email verification one-time password: %s
 
 Please note that the verification code will expire on %s, and you cannot initiate any email verification requests again before the verification code expires or is used!
@@ -134,7 +138,8 @@ If you did not initiate any verification, please ignore this email.
 Request details:
 One Time Password ID: #%d
 Requesting User ID: #%d
-Requester IP: %s`, user.Nickname, otp.Code, otp.ExpiredAt.UTC(), otp.ID, user.ID, otp.Payload.Data().IpAddress))
+Requester IP: %s`, user.Nickname, otp.Code, otp.ExpiredAt.UTC(), otp.ID, user.ID, otp.Payload.Data().IpAddress),
+		)
 	case models.OneTimeDangerousPassCode:
 		var contacts []models.UserContact
 		var contact models.UserContact
@@ -148,7 +153,10 @@ Requester IP: %s`, user.Nickname, otp.Code, otp.ExpiredAt.UTC(), otp.ID, user.ID
 				}
 			}
 		}
-		return v.mailer.SendMail(contact.Content, "[Atom ID] Verify that is you", fmt.Sprintf(`Hello, %s!
+		return v.mailer.SendMail(
+			contact.Content,
+			fmt.Sprintf("⌈%s · ID⌋ Verify that is you", viper.GetString("general.name")),
+			fmt.Sprintf(`Hello, %s!
 You were just performing dangerous operation %s, which was automatically blocked by Atom ID security center, if you want to continue this operation, please enter the following one-time password: %s
 
 Please note that this one-time password will expire on %s, and you cannot initiate any dangerous operation requests again until the verification code expires or is used!
@@ -159,7 +167,8 @@ If you have not initiated a dangerous operation, please check your account for s
 Request details:
 One Time Password ID: #%d
 Requesting User ID: #%d
-Requester IP: %s`, user.Nickname, otp.Payload.Data().Target, otp.Code, otp.ExpiredAt.UTC(), otp.ID, user.ID, otp.Payload.Data().IpAddress))
+Requester IP: %s`, user.Nickname, otp.Payload.Data().Target, otp.Code, otp.ExpiredAt.UTC(), otp.ID, user.ID, otp.Payload.Data().IpAddress),
+		)
 	default:
 		return fmt.Errorf("unsupported OTP type for sending email")
 	}

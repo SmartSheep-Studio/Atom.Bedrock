@@ -1,15 +1,24 @@
 package models
 
 import (
+	"code.smartsheep.studio/atom/bedrock/pkg/server/services"
+	"fmt"
+	"github.com/samber/lo"
+	"github.com/spf13/viper"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 	"time"
 )
 
 const (
-	NotificationLevelInfo    = "info"
-	NotificationLevelTip     = "tip"
+	// NotificationLevelTips Won't send alert
+	NotificationLevelTips = "tips"
+	// NotificationLevelInfo Will send alert
+	NotificationLevelInfo = "info"
+	// NotificationLevelWarning Will send alert
 	NotificationLevelWarning = "warning"
-	NotificationLevelAlert   = "alert"
+	// NotificationLevelAlert Will send alert
+	NotificationLevelAlert = "alert"
 )
 
 const (
@@ -29,6 +38,33 @@ type Notification struct {
 	RecipientID uint                                  `json:"recipient_id"`
 	SenderType  string                                `json:"sender_type"`
 	SenderID    *uint                                 `json:"sender_id"`
+}
+
+func (v *Notification) AfterCreate(tx *gorm.DB) error {
+	var recipient User
+	if err := tx.Where("id = ?", v.RecipientID).Preload("Contacts").First(&recipient).Error; err != nil {
+		return err
+	}
+
+	contact, ok := recipient.GetPrimaryContact()
+	if ok && !lo.Contains([]string{"tips"}, v.Level) {
+		services.Mailer.SendMail(
+			contact.Content,
+			fmt.Sprintf("⌈%s · Notification⌋ %s", viper.GetString("general.name"), v.Title),
+			fmt.Sprintf(`Hello, %s!
+You have received a new notification.
+
+%s
+%s
+
+%s
+
+Notification ID: #%d
+Created At: %s`, recipient.Nickname, v.Title, v.Description, v.Content, v.ID, v.CreatedAt),
+		)
+	}
+
+	return nil
 }
 
 type NotificationLink struct {

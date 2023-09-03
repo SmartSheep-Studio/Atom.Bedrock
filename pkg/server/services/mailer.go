@@ -10,10 +10,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+var Mailer *MailerService
+
 type MailerService struct{}
 
 func NewMailerService() *MailerService {
-	return &MailerService{}
+	Mailer = &MailerService{}
+
+	return Mailer
 }
 
 func (v *MailerService) SendMail(target string, subject string, content string) error {

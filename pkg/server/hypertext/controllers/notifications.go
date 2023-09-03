@@ -60,7 +60,7 @@ func (v *NotificationController) SendNotification(c *fiber.Ctx) error {
 		SenderID:    req.SenderID,
 	}
 	
-	if err := v.notifications.SendNotification(item).Error; err != nil {
+	if err := v.notifications.SendNotification(&item); err != nil {
 		return hyperutils.ErrorParser(err)
 	} else {
 		return c.JSON(item)

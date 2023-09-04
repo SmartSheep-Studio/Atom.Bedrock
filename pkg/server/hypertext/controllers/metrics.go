@@ -43,7 +43,7 @@ func (v *MetricsController) overview(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"uptime": time.Since(v.metrics.StartAt),
+		"uptime": time.Since(v.metrics.StartAt).Milliseconds(),
 		"resources": fiber.Map{
 			"users":         countRecord(&models.User{}),
 			"sessions":      countRecord(&models.UserSession{}),

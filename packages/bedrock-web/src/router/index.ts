@@ -48,6 +48,7 @@ const router = createRouter({
       path: "/administration",
       name: "administration",
       component: () => import("@/views/administration/layout.vue"),
+      redirect: { name: "administration.dashboard" },
       meta: { gatekeeper: { must: true, permissions: ["bedrock.admin.view"] } },
       children: [
         {
@@ -56,7 +57,7 @@ const router = createRouter({
           component: () => import("@/views/administration/dashboard.vue"),
           meta: { gatekeeper: { must: true, permissions: ["bedrock.admin.view"] } },
         },
-      ]
+      ],
     },
 
     {

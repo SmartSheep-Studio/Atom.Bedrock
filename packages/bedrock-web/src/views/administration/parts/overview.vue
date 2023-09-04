@@ -38,6 +38,14 @@
             </n-statistic>
           </n-card>
         </n-gi>
+        <n-gi span="4">
+          <n-alert :show-icon="false">
+            <div class="flex gap-[6px] items-center px-2">
+              <div class="font-bold">Uptime</div>
+              <div>{{ parseDuration(overview.uptime) }}</div>
+            </div>
+          </n-alert>
+        </n-gi>
       </n-grid>
     </n-card>
   </n-spin>
@@ -54,7 +62,7 @@ const $message = useMessage();
 const reverting = ref(false);
 
 const overview = ref<any>({
-  uptime: null,
+  uptime: 0,
   resources: {
     users: 0,
     sessions: 0,
@@ -62,6 +70,19 @@ const overview = ref<any>({
     notifications: 0,
   },
 });
+
+function parseDuration(duration: number): string {
+  let milliseconds = Math.floor((duration % 1000) / 100),
+    seconds = Math.floor((duration / 1000) % 60),
+    minutes = Math.floor((duration / (1000 * 60)) % 60),
+    hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+  hours = hours < 10 ? "0" + hours : hours;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
+
+  return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+}
 
 async function fetch() {
   try {

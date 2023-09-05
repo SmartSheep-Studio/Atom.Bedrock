@@ -1,5 +1,5 @@
 <template>
-  <div class="container flex justify-center items-center h-max">
+  <div class="container h-[100vh] flex justify-center items-center">
     <div class="wrapper">
       <div class="text-center">
         <img src="../../../assets/icon.png" width="64" height="64" />

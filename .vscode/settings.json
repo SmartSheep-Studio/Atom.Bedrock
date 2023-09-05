@@ -1,6 +1,6 @@
 {
-    "prettier.prettierPath": "./renderer/node_modules/prettier",
+    "prettier.prettierPath": "./packages/bedrock-web/node_modules/prettier",
     "i18n-ally.localesPaths": [
-        "renderer/src/i18n"
+        "packages/bedrock-web/src/i18n"
     ]
 }

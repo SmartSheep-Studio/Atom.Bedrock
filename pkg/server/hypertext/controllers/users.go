@@ -39,6 +39,16 @@ func (v *UserController) Map(router *fiber.App) {
 	)
 
 	router.Get(
+		"/api/administration/users",
+		v.gatekeeper.Fn(
+			true,
+			hyperutils.GenScope("admin:users"),
+			hyperutils.GenPerms("admin.users.read"),
+		),
+		v.list,
+	)
+
+	router.Get(
 		"/api/users/self",
 		v.gatekeeper.Fn(true, hyperutils.GenScope("read:id"), hyperutils.GenPerms()),
 		v.self,
@@ -80,6 +90,15 @@ func (v *UserController) Map(router *fiber.App) {
 		v.gatekeeper.Fn(true, hyperutils.GenScope("update:id.personalize"), hyperutils.GenPerms("personalize")),
 		v.personalize,
 	)
+}
+
+func (v *UserController) list(c *fiber.Ctx) error {
+	var users []models.User
+	if err := v.db.Limit(c.QueryInt("limit", 20)).Offset(c.QueryInt("offset", 0)).Find(&users).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	} else {
+		return c.JSON(users)
+	}
 }
 
 func (v *UserController) info(c *fiber.Ctx) error {
@@ -154,12 +173,6 @@ func (v *UserController) selfNotifications(c *fiber.Ctx) error {
 	if err := tx.Find(&notifications).Error; err != nil {
 		return hyperutils.ErrorParser(err)
 	} else {
-		if c.Query("update_state", "yes") == "yes" {
-			v.db.Model(models.Notification{}).Where("recipient_id = ? AND read_at IS NULL", u.ID).Updates(models.Notification{
-				ReadAt: lo.ToPtr(time.Now()),
-			})
-		}
-
 		return c.JSON(notifications)
 	}
 }

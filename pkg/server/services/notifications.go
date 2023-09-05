@@ -3,7 +3,6 @@ package services
 import (
 	"code.smartsheep.studio/atom/bedrock/pkg/server/datasource/models"
 	"fmt"
-	"github.com/samber/lo"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -24,7 +23,7 @@ func (v *NotificationService) SendNotification(item *models.Notification) error 
 	}
 
 	contact, ok := recipient.GetPrimaryContact()
-	if ok && !lo.Contains([]string{"tips"}, item.Level) {
+	if ok && item.Level != "tips" {
 		return v.mailer.SendMail(
 			contact.Content,
 			fmt.Sprintf("⌈%s · Notification⌋ %s", viper.GetString("general.name"), item.Title),

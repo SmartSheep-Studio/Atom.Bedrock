@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="container pt-10">
-      <div class="md:px-8 lg:px-18 xl:px-24">
+      <div class="md:px-6 lg:px-16 xl:px-20">
         <div>
           <div class="text-xl font-bold">Notifications</div>
           <div class="text-md">
@@ -15,10 +15,27 @@
           </n-space>
         </div>
 
-        <div class="pt-6">
+        <div class="pt-6 mx-[-8px]">
           <n-list bordered hoverable v-if="data.length > 0">
             <n-list-item v-for="item in data">
               <n-thing :title="item.title" content-style="margin-top: 10px;">
+                <template #header-extra>
+                  <n-space>
+                    <n-button
+                      circle
+                      quaternary
+                      type="info"
+                      size="tiny"
+                      :disabled="item.read_at != null"
+                      @click="read(item)"
+                    >
+                      <template #icon>
+                        <n-icon :component="CheckRound" />
+                      </template>
+                    </n-button>
+                  </n-space>
+                </template>
+
                 <template #description>
                   <n-space vertical>
                     <div class="text-xs text-gray-600 mt-[-4px]">{{ item.description }}</div>
@@ -34,7 +51,9 @@
                   </n-space>
                 </template>
 
-                <vue-markdown :source="item.content" />
+                <div class="mb-[-6px]">
+                  <vue-markdown :source="item.content" />
+                </div>
               </n-thing>
             </n-list-item>
           </n-list>
@@ -51,6 +70,7 @@
 </template>
 
 <script lang="ts" setup>
+import { CheckRound } from "@vicons/material";
 import { usePrincipal } from "@/stores/account";
 import { reactive, ref, watch } from "vue";
 import { useMessage } from "naive-ui";
@@ -82,6 +102,19 @@ async function fetch() {
     });
 
     data.value = res.data;
+  } catch (e) {
+    $message.error(t("common.feedback.unknown-error", [e]));
+  } finally {
+    reverting.value = false;
+  }
+}
+
+async function read(item: any) {
+  try {
+    reverting.value = true;
+
+    await http.post(`/api/notifications/${item.id}/read`);
+    await fetch();
   } catch (e) {
     $message.error(t("common.feedback.unknown-error", [e]));
   } finally {

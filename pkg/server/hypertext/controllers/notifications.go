@@ -9,11 +9,12 @@ import (
 	"github.com/samber/lo"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
+	"time"
 )
 
 type NotificationController struct {
-	db         *gorm.DB
-	gatekeeper *middlewares.AuthMiddleware
+	db            *gorm.DB
+	gatekeeper    *middlewares.AuthMiddleware
 	notifications *services.NotificationService
 }
 
@@ -22,7 +23,7 @@ func NewNotificationController(db *gorm.DB, gatekeeper *middlewares.AuthMiddlewa
 }
 
 func (v *NotificationController) Map(router *fiber.App) {
-	router.Post("/cgi/notifications", v.SendNotification)
+	router.Post("/cgi/notifications", v.send)
 
 	router.Post(
 		"/api/administration/notifications",
@@ -30,11 +31,28 @@ func (v *NotificationController) Map(router *fiber.App) {
 			hyperutils.GenScope("admin:notifications"),
 			hyperutils.GenPerms("admin.notifications.create"),
 		),
-		v.SendNotification,
+		v.send,
+	)
+
+	router.Post(
+		"/api/notifications/all/read",
+		v.gatekeeper.Fn(true,
+			hyperutils.GenScope("read:notifications"),
+			hyperutils.GenPerms("notifications.read"),
+		),
+		v.readAll,
+	)
+	router.Post(
+		"/api/notifications/:notify/read",
+		v.gatekeeper.Fn(true,
+			hyperutils.GenScope("read:notifications"),
+			hyperutils.GenPerms("notifications.read"),
+		),
+		v.read,
 	)
 }
 
-func (v *NotificationController) SendNotification(c *fiber.Ctx) error {
+func (v *NotificationController) send(c *fiber.Ctx) error {
 	var req struct {
 		Title       string                    `json:"title" validate:"required"`
 		Description string                    `json:"description" validate:"required"`
@@ -59,10 +77,37 @@ func (v *NotificationController) SendNotification(c *fiber.Ctx) error {
 		SenderType:  lo.Ternary(req.SenderID == nil, models.NotificationSenderTypeSystem, models.NotificationSenderTypeUser),
 		SenderID:    req.SenderID,
 	}
-	
+
 	if err := v.notifications.SendNotification(&item); err != nil {
 		return hyperutils.ErrorParser(err)
 	} else {
 		return c.JSON(item)
+	}
+}
+
+func (v *NotificationController) read(c *fiber.Ctx) error {
+	u := c.Locals("principal").(models.User)
+
+	var notification models.Notification
+	if err := v.db.Where("id = ? AND recipient_id = ?", c.Params("notify"), u.ID).First(&notification).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	}
+
+	notification.ReadAt = lo.ToPtr(time.Now())
+
+	if err := v.db.Save(&notification).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	} else {
+		return c.JSON(notification)
+	}
+}
+
+func (v *NotificationController) readAll(c *fiber.Ctx) error {
+	u := c.Locals("principal").(models.User)
+
+	if err := v.db.Where("recipient_id = ?", c.Params("notify"), u.ID).Updates(models.Notification{ReadAt: lo.ToPtr(time.Now())}).Error; err != nil {
+		return hyperutils.ErrorParser(err)
+	} else {
+		return c.SendStatus(fiber.StatusNoContent)
 	}
 }

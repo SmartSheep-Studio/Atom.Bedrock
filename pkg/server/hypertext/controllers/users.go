@@ -165,6 +165,9 @@ func (v *UserController) selfNotifications(c *fiber.Ctx) error {
 	u := c.Locals("principal").(models.User)
 
 	tx := v.db.Where("recipient_id = ?", u.ID)
+	tx.Order("created_at desc")
+	tx.Limit(20)
+
 	if c.Query("only_unread", "yes") == "yes" {
 		tx.Where("read_at IS NULL")
 	}

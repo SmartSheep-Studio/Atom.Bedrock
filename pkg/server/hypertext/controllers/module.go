@@ -26,6 +26,7 @@ func Module() fx.Option {
 			AsController(NewUserController),
 			AsController(NewOpenIDController),
 			AsController(NewStorageController),
+			AsController(NewLockController),
 			AsController(NewNotificationController),
 		),
 	)

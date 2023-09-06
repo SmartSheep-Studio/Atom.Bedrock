@@ -16,7 +16,7 @@
       <n-form-item label="Recipients">
         <n-card size="small" embedded>
           <div class="font-mono">
-            <b>{{ props.selection.length }}</b> users you selected.
+            <b>{{ props.selection.length }}</b> user(s) you selected.
           </div>
         </n-card>
       </n-form-item>

@@ -78,7 +78,7 @@ function submit() {
         await http.post("/api/administration/locks", {
           reason: payload.reason,
           expired_at: new Date(payload.expired_at),
-          recipient_id: item
+          user_id: item
         }, {
           params: { quiet: payload.quiet ? "yes" : "no" }
         });
